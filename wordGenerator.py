@@ -1,3 +1,5 @@
+# This version makes it uncommon to have double-vowel (or double-consonant) phonemes. Likelihood varies with streakModifier.
+
 # Needed:
 #  Some letters need to be considered less common
 
