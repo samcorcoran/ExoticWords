@@ -19,18 +19,22 @@ vowelPhonemes = ['a', 'e', 'i', 'o', 'u', 'ae', 'ee', 'ie', 'oe', 'ue', 'oo', 'a
 # Note: This contains graphemes which are not distinct phonemes, such as "c" which shares the phoneme "k"
 consonantPhonemes = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z', 'wh', 'th', 'ch', 'sh', 'zh', 'ng']
 
-
+# How many words should be generated in this batch?
 totalWords = 10
 
+# How should the process be configured?
 print "Config:"
 minWordLength = 3
 print "Minimum word length: " + str(minWordLength)
 maxWordLength = minWordLength + random.randint(0, 5)
 print "Maximum word length: " + str(maxWordLength)
-vowelProbability = 0.5
-print "Starting vowel probability: " + str(vowelProbability)
+vowelProbability = round(random.uniform(0.4, 0.6), 2)
+print "Vowel probability: " + str(vowelProbability) + " (0.4 to 0.6)"
+streakModifier = round(random.uniform(0.35, 0.5), 2)
+print "Streak modifier: " + str(streakModifier) + " (larger modifiers decrease the likelihood of double-selections)"
 
-print "\nGenerated words: " 
+
+print "\nGenerated words: "
 for i in range(totalWords):
     wordLength = random.randint(minWordLength, maxWordLength)
 
@@ -39,35 +43,49 @@ for i in range(totalWords):
     vowelCounter = 0
     vowelStreak = 0
 
+    probabilityString = ""
     symbolString = ""
     finishedWord = ""
 
-    wasVowel = False
-    randomNum = random.random()
-    if randomNum <= 0.5:
-        wasVowel = True
-
+    #wasVowel = False
+    
     for x in range(wordLength):
+        vowelChoiceRand = random.random()
+        # Tip choice based on streaks (very unlikely to get same choice repeated)
+        vowelChoiceRand -= consonantStreak * streakModifier
+        vowelChoiceRand += vowelStreak * streakModifier
+        #print "letter: " + str(x) + ": " + str(vowelStreak) + " " + str(consonantStreak)
+        probabilityString += str(vowelChoiceRand)[:4] + ", "
+        
         # Alternate between vowel phonemes and consonant phonemes
-        if wasVowel == False:
+        if vowelChoiceRand < vowelProbability:
             #print "Chose vowel"
+
             # Choose a vowel
             symbolString += "v"
             vowelsIndex = random.randint(0, len(vowelPhonemes)-1)
-            ##print "Vowel chosen (" + str(vowelsIndex) + ": " + vowelPhonemes[vowelsIndex] + ")" 
+            ##print "Vowel chosen (" + str(vowelsIndex) + ": " + vowelPhonemes[vowelsIndex] + ")"
             finishedWord += vowelPhonemes[vowelsIndex]
             # Continue vowel streak/break consonant streak
             wasVowel = True
+
+            vowelStreak += 1
+            consonantStreak = 0
         else:
             #print "Chose consonant"
+
             # Choose a consonant
             symbolString += "c"
             consonantsIndex = random.randint(0, len(consonantPhonemes)-1)
-            ##print "Consonant chosen (" + str(consonantsIndex) + ": " + consonantPhonemes[consonantsIndex] + ")" 
+            ##print "Consonant chosen (" + str(consonantsIndex) + ": " + consonantPhonemes[consonantsIndex] + ")"
             finishedWord += consonantPhonemes[consonantsIndex]
             # Continue vowel streak/break consonant streak
             wasVowel = False
 
+            consonantStreak += 1
+            vowelStreak = 0
+
     finishedWord = string.capitalize(finishedWord)
     # Print finished word
-    print finishedWord
+    print finishedWord 
+    #print " (" + symbolString + ": " + probabilityString + ")"
