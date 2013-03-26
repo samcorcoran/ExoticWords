@@ -1,12 +1,39 @@
-# This version makes it uncommon to have double-vowel (or double-consonant) phonemes. Likelihood varies with streakModifier.
-
 # Needed:
-#  Some letters need to be considered less common
+#  - More interesting way of determining how common phonemes are. 
+#  - Create function for handling probability assignment. Break phonemes into smaller groups, grouped by shared factor or by 
+#  - Current vowel/consonant choice is made first. Really, permissable phonemes should be considered for each selection, decisions weighted by probabilities 
+#    ~ vowel probabilities should be higher if current is consonant and vice versa
+
 
 # Control by phoneme:
 #  How rounded the phoneme is? How sharp? Short? Upwards inflexion, downwards inflexion?
 #  http://www.lancsngfl.ac.uk/curriculum/literacy/lit_site/lit_sites/phonemes_001/
 #  phoneme freq: http://myweb.tiscali.co.uk/wordscape/wordlist/phonfreq.html
+#  Permissable combination of phonemes in a language: http://en.wikipedia.org/wiki/Phonotactics
+#  Phonotactic library: http://www.iphod.com/
+#  CMUPD is a phoneme list/key system which uses combinations of alphabetic characters to represent phonemes
+#  Phonemes coding for multiple graphemes: http://en.wikipedia.org/wiki/Phonemic_orthography
+#   Different speech sounds representing the same phoneme are allophones: http://en.wikipedia.org/wiki/Allophone
+#  Ranking phones by aplitude: http://en.wikipedia.org/wiki/Sonority_hierarchy (also lists various consonant types)
+
+# (http://en.wikipedia.org/wiki/Manner_of_articulation)
+#Manners of articulation: 
+# Obstruent (obstructed airflow, air pressure in vocal tract) 
+#  Stop (p t k b d g)
+#  Affricate
+#  Fricative
+#   Sibilant        
+# Sonorant (continuous, non-turbulant airflow in vocal tract)
+#  Nasal
+#  Flap/Tap
+#  Approximant
+#   Liquid
+#  Vowel
+#   SemiVowel
+# Lateral
+# Trill
+
+
 
 import random
 import string
