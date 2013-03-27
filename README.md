@@ -12,3 +12,6 @@ http://archives.conlang.info/pei/pirjhin/zurbhaunsaun.html
 
 http://www.linguistics.ucla.edu/faciliti/sales/software.htm
 http://www.phonetics.ucla.edu/vowels/contents.html
+
+Hidden Markov Models, phonemes coding for multiple graphemes:
+http://project.uet.itgo.com/markov_model.htm
