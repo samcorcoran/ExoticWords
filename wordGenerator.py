@@ -41,12 +41,52 @@ import string
 print 'Word Generator!\n'
 
 
-vowelsList = ['a', 'e', 'i', 'o', 'u']
-consonantsList = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z']
+## How many words should be generated in this batch?
+totalWords = 20
 
+## How should the process be configured?
+print "Config:"
 
+minWordLength = 3
+print "Minimum word length: " + str(minWordLength)
 
+upperWordLengthBound = 8
+maxWordLength = minWordLength + random.randint(0, upperWordLengthBound-minWordLength)
+print "Maximum word length: " + str(maxWordLength)
 
+vowelProbMin = 0.4
+vowelProbMax = 0.6
+vowelProbability = round(random.uniform(vowelProbMin, vowelProbMax), 2)
+print "Vowel probability: " + str(vowelProbability) + " (" + str(vowelProbMin) + " to " + str(vowelProbMax) + ")"
+
+streakModMin = 0.2
+streakModMax = 0.5
+streakModifier = round(random.uniform(streakModMin, streakModMax), 2)
+print "Streak modifier: " + str(streakModifier) + " (" + str(streakModMin) + " to " + str(streakModMax) + ", reduces double selections)"
+
+# likelihood of vowel popularity
+vowelPopularityProb = 0.1
+# popular vowels
+minPopularVowelProb = 0.8
+maxPopularVowelProb = 1.0
+# regular vowels
+minRegularVowelProb = 0
+maxRegularVowelProb = 0.2
+print "Vowel probability intervals... popular(" + str(vowelPopularityProb) + "): " + str(minPopularVowelProb) + " to " + str(maxPopularVowelProb) + ", regular: " + str(minRegularVowelProb) + " to " + str(maxRegularVowelProb)
+
+# likelihood of consonant popularity
+consPopularityProb = 0.1
+# popular consonants
+minPopularConsProb = 0.8
+maxPopularConsProb = 1.0
+# regular consonants
+minRegularConsProb = 0
+maxRegularConsProb = 0.1
+print "Consonant probability intervals... popular(" + str(consPopularityProb) + "): " + str(minPopularConsProb) + " to " + str(maxPopularConsProb) + ", regular: " + str(minRegularConsProb) + " to " + str(maxRegularConsProb)
+
+print
+
+## Phoneme Lists
 vowelPhonemes = ['a', 'e', 'i', 'o', 'u', 'ae', 'ee', 'ie', 'oe', 'ue', 'oo', 'ar', 'ur', 'or', 'au', 'er', 'ow', 'oi', 'air', 'ear']
 # Note: This contains graphemes which are not distinct phonemes, such as "c" which shares the phoneme "k"
 consonantPhonemes = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z', 'wh', 'th', 'ch', 'sh', 'zh', 'ng']
@@ -55,44 +95,45 @@ consonantPhonemes = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p',
 vowelProbs = dict()
 # Assign a probability to each vowelPhoneme
 totalVowelProbs = 0
+# Track high-probability vowel phonemes
+popularVowels = ""
 for nextPhoneme in vowelPhonemes:
-    vowelProbs[nextPhoneme] = random.uniform(0.5, 1)
+    # Give a small percentage of vowel phonemes high probabilities
+    if random.random() < vowelPopularityProb:
+        vowelProbs[nextPhoneme] = random.uniform(minPopularVowelProb, maxPopularVowelProb)
+        popularVowels += nextPhoneme + ", "
+    else:
+        vowelProbs[nextPhoneme] = random.uniform(minRegularVowelProb, maxRegularVowelProb)
     totalVowelProbs += vowelProbs[nextPhoneme]
 # Normalise vowel probabilities
 for vowel in vowelProbs:
     vowelProbs[vowel] /= totalVowelProbs
 #print vowelProbs
 #print "Total vowel probs: " + str( sum(vowelProbs.values()) )
+print "Popular vowels: " + popularVowels
 
 ## Consonant Probabilities
 consonantProbs = dict()
 # Assign a probability to each vowelPhoneme
 totalConsonantProbs = 0
+# Track high-probability consonant phonemes
+popularConsonants = ""
 for nextPhoneme in consonantPhonemes:
-    consonantProbs[nextPhoneme] = random.random()
+    # Give a small percentage of consonant phonemes high probabilities
+    if random.random() < consPopularityProb:
+        consonantProbs[nextPhoneme] = random.uniform(minPopularConsProb, maxPopularConsProb)
+        popularConsonants += nextPhoneme + " "
+    else:
+        consonantProbs[nextPhoneme] = random.uniform(minRegularConsProb, maxRegularConsProb)
     totalConsonantProbs += consonantProbs[nextPhoneme]
 # Normalise consonant probabilities
 for cons in consonantProbs:
     consonantProbs[cons] /= totalConsonantProbs
 #print consonantProbs
 #print "Total Cons probs: " + str( sum(consonantProbs.values()) )
+print "Popular consonants: " + popularConsonants
 
 
-
-# How many words should be generated in this batch?
-totalWords = 20
-
-# How should the process be configured?
-print "Config:"
-minWordLength = 3
-print "Minimum word length: " + str(minWordLength)
-maxWordLength = minWordLength + random.randint(0, 5)
-print "Maximum word length: " + str(maxWordLength)
-vowelProbability = round(random.uniform(0.4, 0.6), 2)
-print "Vowel probability: " + str(vowelProbability) + " (0.4 to 0.6)"
-streakModifier = round(random.uniform(0.2, 0.5), 2)
-
-print "Streak modifier: " + str(streakModifier) + " (larger modifiers decrease the likelihood of double-selections)"
 
 print "\nGenerated words: "
 for i in range(totalWords):
