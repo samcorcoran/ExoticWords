@@ -132,7 +132,9 @@ for i in range(totalWords):
                     # sample is within interval
                     chosenVowel = vowel
                     break
-                        
+            if chosenVowel == "":
+                print "ERROR: empty vowel choice! Word so far: " + finishedWord
+                print "  vSample: " + str(vSample) + ", cumVowelProbs: " + str(cumVowelProbs)
             ##vowelsIndex = random.randint(0, len(vowelPhonemes)-1)
 
             ##print "Vowel chosen (" + str(vowelsIndex) + ": " + vowelPhonemes[vowelsIndex] + ")"
@@ -159,6 +161,9 @@ for i in range(totalWords):
                     # sample is within interval
                     chosenConsonant = cons
                     break
+            if chosenConsonant == "":
+                print "ERROR: empty consonant choice! Word so far: " + finishedWord
+                print "  cSample: " + str(cSample) + ", cumConsProbs: " + str(cumConsProbs)
             finishedWord += chosenConsonant
             # Continue vowel streak/break consonant streak
             wasVowel = False
