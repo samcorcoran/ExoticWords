@@ -217,14 +217,3 @@ for i in range(totalWords):
     # Print finished word
     print finishedWord 
     #print " (" + symbolString + ": " + probabilityString + ")"
-
-
-# A phoneme exists as a unit 
-class Phoneme:
-    #Phonemes can be vowel phonemes or consonant phonemes
-    __phonemeType = ""
-    def __init__(self, newPhonemeType):
-        self.phonemeType = newPhonemeType
-        
-    def getPhonemeType(self):
-        return __self.phonemeType
