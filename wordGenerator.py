@@ -129,10 +129,10 @@ for i in range(totalWords):
             cumVowelProbs = 0
             # Move through vowel probs, checking if sample is within interval
             for vowel in vowelProbs:
+                chosenVowel = vowel
                 cumVowelProbs += vowelProbs[vowel]
                 if vSample < cumVowelProbs:
-                    # sample is within interval
-                    chosenVowel = vowel
+                    # sample is within interval, retain this vowel as chosen
                     break
             if chosenVowel == "":
                 print "ERROR: empty vowel choice! Word so far: " + finishedWord
@@ -158,10 +158,10 @@ for i in range(totalWords):
             cumConsProbs = 0
             # Move through vowel probs, checking if sample is within interval
             for cons in consonantProbs:
+                chosenConsonant = cons
                 cumConsProbs += consonantProbs[cons]
                 if cSample < cumConsProbs:
-                    # sample is within interval
-                    chosenConsonant = cons
+                    # sample is within interval, retain this consonant as chosen
                     break
             if chosenConsonant == "":
                 print "ERROR: empty consonant choice! Word so far: " + finishedWord
