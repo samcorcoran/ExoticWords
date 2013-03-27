@@ -62,6 +62,7 @@ for nextPhoneme in vowelPhonemes:
 for vowel in vowelProbs:
     vowelProbs[vowel] /= totalVowelProbs
 #print vowelProbs
+#print "Total vowel probs: " + str( sum(vowelProbs.values()) )
 
 ## Consonant Probabilities
 consonantProbs = dict()
@@ -72,8 +73,9 @@ for nextPhoneme in consonantPhonemes:
     totalConsonantProbs += consonantProbs[nextPhoneme]
 # Normalise consonant probabilities
 for cons in consonantProbs:
-    consonantProbs[cons] /= totalVowelProbs
+    consonantProbs[cons] /= totalConsonantProbs
 #print consonantProbs
+#print "Total Cons probs: " + str( sum(consonantProbs.values()) )
 
 
 
