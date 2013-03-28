@@ -15,3 +15,6 @@ http://www.phonetics.ucla.edu/vowels/contents.html
 
 Hidden Markov Models, phonemes coding for multiple graphemes:
 http://project.uet.itgo.com/markov_model.htm
+
+Mention of positional probability:
+http://iphodblog.blogspot.co.uk/ 
