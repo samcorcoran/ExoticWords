@@ -38,31 +38,31 @@
 import random
 import string
 
-print 'Word Generator!\n'
+print("Word Generator!\n")
 
 
 ## How many words should be generated in this batch?
-totalWords = 20
+totalWords = 15
 
 ## How should the process be configured?
-print "Config:"
+print("Config:")
 
 minWordLength = 3
-print "Minimum word length: " + str(minWordLength)
+print("Minimum word length: " + str(minWordLength))
 
 upperWordLengthBound = 8
 maxWordLength = minWordLength + random.randint(0, upperWordLengthBound-minWordLength)
-print "Maximum word length: " + str(maxWordLength)
+print("Maximum word length: " + str(maxWordLength))
 
 vowelProbMin = 0.4
 vowelProbMax = 0.6
 vowelProbability = round(random.uniform(vowelProbMin, vowelProbMax), 2)
-print "Vowel probability: " + str(vowelProbability) + " (" + str(vowelProbMin) + " to " + str(vowelProbMax) + ")"
+print("Vowel probability: " + str(vowelProbability) + " (" + str(vowelProbMin) + " to " + str(vowelProbMax) + ")")
 
 streakModMin = 0.2
 streakModMax = 0.5
 streakModifier = round(random.uniform(streakModMin, streakModMax), 2)
-print "Streak modifier: " + str(streakModifier) + " (" + str(streakModMin) + " to " + str(streakModMax) + ", reduces double selections)"
+print("Streak modifier: " + str(streakModifier) + " (" + str(streakModMin) + " to " + str(streakModMax) + ", reduces double selections)")
 
 # likelihood of vowel popularity
 vowelPopularityProb = 0.1
@@ -72,7 +72,7 @@ maxPopularVowelProb = 1.0
 # regular vowels
 minRegularVowelProb = 0
 maxRegularVowelProb = 0.2
-print "Vowel probability intervals... popular(" + str(vowelPopularityProb) + "): " + str(minPopularVowelProb) + " to " + str(maxPopularVowelProb) + ", regular: " + str(minRegularVowelProb) + " to " + str(maxRegularVowelProb)
+print("Vowel probability intervals... popular(" + str(vowelPopularityProb) + "): " + str(minPopularVowelProb) + " to " + str(maxPopularVowelProb) + ", regular: " + str(minRegularVowelProb) + " to " + str(maxRegularVowelProb))
 
 # likelihood of consonant popularity
 consPopularityProb = 0.1
@@ -82,9 +82,9 @@ maxPopularConsProb = 1.0
 # regular consonants
 minRegularConsProb = 0
 maxRegularConsProb = 0.1
-print "Consonant probability intervals... popular(" + str(consPopularityProb) + "): " + str(minPopularConsProb) + " to " + str(maxPopularConsProb) + ", regular: " + str(minRegularConsProb) + " to " + str(maxRegularConsProb)
+print("Consonant probability intervals... popular(" + str(consPopularityProb) + "): " + str(minPopularConsProb) + " to " + str(maxPopularConsProb) + ", regular: " + str(minRegularConsProb) + " to " + str(maxRegularConsProb))
 
-print
+print("")
 
 ## Phoneme Lists
 vowelPhonemes = ['a', 'e', 'i', 'o', 'u', 'ae', 'ee', 'ie', 'oe', 'ue', 'oo', 'ar', 'ur', 'or', 'au', 'er', 'ow', 'oi', 'air', 'ear']
@@ -110,7 +110,7 @@ for vowel in vowelProbs:
     vowelProbs[vowel] /= totalVowelProbs
 #print vowelProbs
 #print "Total vowel probs: " + str( sum(vowelProbs.values()) )
-print "Popular vowels: " + popularVowels
+print("Popular vowels: " + popularVowels)
 
 ## Consonant Probabilities
 consonantProbs = dict()
@@ -131,11 +131,11 @@ for cons in consonantProbs:
     consonantProbs[cons] /= totalConsonantProbs
 #print consonantProbs
 #print "Total Cons probs: " + str( sum(consonantProbs.values()) )
-print "Popular consonants: " + popularConsonants
+print("Popular consonants: " + popularConsonants)
 
 
 
-print "\nGenerated words: "
+print("\nGenerated words: ")
 for i in range(totalWords):
     wordLength = random.randint(minWordLength, maxWordLength)
 
@@ -176,11 +176,11 @@ for i in range(totalWords):
                     # sample is within interval, retain this vowel as chosen
                     break
             if chosenVowel == "":
-                print "ERROR: empty vowel choice! Word so far: " + finishedWord
-                print "  vSample: " + str(vSample) + ", cumVowelProbs: " + str(cumVowelProbs)
+                print("ERROR: empty vowel choice! Word so far: " + finishedWord)
+                print("  vSample: " + str(vSample) + ", cumVowelProbs: " + str(cumVowelProbs))
             ##vowelsIndex = random.randint(0, len(vowelPhonemes)-1)
 
-            ##print "Vowel chosen (" + str(vowelsIndex) + ": " + vowelPhonemes[vowelsIndex] + ")"
+            ##print("Vowel chosen (" + str(vowelsIndex) + ": " + vowelPhonemes[vowelsIndex] + ")")
             
             finishedWord += chosenVowel
 
@@ -189,7 +189,7 @@ for i in range(totalWords):
             vowelStreak += 1
             consonantStreak = 0
         else:
-            #print "Chose consonant"
+            #print("Chose consonant")
             # Choose a consonant
             symbolString += "c"
 
@@ -205,15 +205,15 @@ for i in range(totalWords):
                     # sample is within interval, retain this consonant as chosen
                     break
             if chosenConsonant == "":
-                print "ERROR: empty consonant choice! Word so far: " + finishedWord
-                print "  cSample: " + str(cSample) + ", cumConsProbs: " + str(cumConsProbs)
+                print("ERROR: empty consonant choice! Word so far: " + finishedWord)
+                print("  cSample: " + str(cSample) + ", cumConsProbs: " + str(cumConsProbs))
             finishedWord += chosenConsonant
             # Continue vowel streak/break consonant streak
             wasVowel = False
             consonantStreak += 1
             vowelStreak = 0
 
-    finishedWord = string.capitalize(finishedWord)
+    finishedWord = str.capitalize(finishedWord)
     # Print finished word
-    print finishedWord 
-    #print " (" + symbolString + ": " + probabilityString + ")"
+    print(finishedWord)
+    #print(" (" + symbolString + ": " + probabilityString + ")")
