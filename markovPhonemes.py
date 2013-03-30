@@ -8,17 +8,18 @@ import Phoneme
 def createPhonemeObjects(phonemeObjects, newPhonemes, phonemeType):
     debugMode = False
     # Create Phoneme objects from the incoming list
-    print("\nCreating (" + str(len(newPhonemes)) + ") phoneme (" + phonemeType + ") objects...")
+    print("Creating (" + str(len(newPhonemes)) + ") phoneme (" + phonemeType + ") objects...")
     # Loop through phonemes, creating objects
     for phoneme in newPhonemes:
         # Create a phoneme object
-        nextPhoneme = Phoneme.Phoneme(phoneme, phonemeType, 'example '+phoneme, 1, [phoneme])
+        baseProbability = random.random()
+        nextPhoneme = Phoneme.Phoneme(phoneme, phonemeType, 'example '+phoneme, baseProbability, 1, [phoneme])
         if debugMode: print("nextPhoneme: " + nextPhoneme.phonemeSymbol)
         phonemeObjects[nextPhoneme.phonemeSymbol] = nextPhoneme
 
 def generateWords(generatedWords, totalWords, phonemeObjects):
     debugMode = False
-    print("\nGenerating (" + str(totalWords) + ") words...")
+    print("Generating (" + str(totalWords) + ") words...")
     for nextWordIndex in range(totalWords):
         if debugMode: print("Generating word " + nextWord)
         wordLength = random.randint(3,6)
@@ -35,7 +36,7 @@ def generateWords(generatedWords, totalWords, phonemeObjects):
                 #finishedWord += chosenPhoneme.phonemeType
                 latestPhoneme = chosenPhoneme
             else:
-                print("Error: '" + latestPhoneme.phonemeSymbol + "' has no successors (failed on phoneme " + str(nextPhonemeIndex) + " of " + str(wordLength) + ")") 
+                print("Error: '" + latestPhoneme.phonemeSymbol + "' has no successors (failed on phoneme " + str(nextPhonemeIndex + 1) + " of " + str(wordLength) + ")") 
         generatedWords.append(finishedWord)
 
 def printGeneratedWords(generatedWords):    
@@ -44,16 +45,22 @@ def printGeneratedWords(generatedWords):
         print("\t" + str.capitalize(nextWord))
 
 def printPhonemes(phonemeObjects, verbose):
-    print("\nTotal phonemeObjects: " + str(len(phonemeObjects)))
+    print("Total phonemeObjects: " + str(len(phonemeObjects)))
     # For testing, print out contents of phoneme objects
     print("Testing phoneme objs:")
-    for phonemeObj in phonemeObjects:
-        phonemeObj.reportPhonemeInfo(verbose)
+    for phonemeKey in phonemeObjects:
+        phonemeObjects[phonemeKey].reportPhonemeInfo(verbose)
+
+def printSuccessorUsages(phonemeObjects):
+    print("\nPhoneme usage information:\n")
+    for phonemeKey, phoneme in phonemeObjects.items():
+        phoneme.reportPhonemeSuccessorUsage()
+        
 
 # Adds all phonemes as successors to all other phonemes with a probability of 1
 def fullyConnectNetwork(phonemeObjects):
     debugMode = False
-    print("\nFully connecting set of (" + str(len(phonemeObjects)) + ") phoneme objects...")
+    print("Fully connecting set of (" + str(len(phonemeObjects)) + ") phoneme objects...")
     for key in phonemeObjects.keys():
         phonemeObj = phonemeObjects[key]
         # Give phonemeObj every other phonemeObject as a successor
@@ -61,40 +68,69 @@ def fullyConnectNetwork(phonemeObjects):
             nextSuccessor = phonemeObjects[successorKey]
             # Add this object as successor
             if debugMode: print(phonemeObj.phonemeSymbol + " adding phoneme " + nextSuccessor.phonemeSymbol + " as successor.")
-            phonemeObj.addSuccessor(nextSuccessor, 1.0)
+            # Determine whether successor will be popular or regular
+            successorProbability = 0
+            popularityThreshold = 0.9
+            rand = random.random()
+            if rand > popularityThreshold:
+                # successor is popular, high probability
+                successorProbability = random.uniform(0.8, 1)
+            elif rand > 0.6:
+                # successor is regular, low probability
+                successorProbability = random.uniform(0, 0.1)
+            else:
+                # designated non-successor, zero-probability
+                successorProbability = 0
+                
+            phonemeObj.addSuccessor(nextSuccessor, successorProbability)
 
 # Removes from each node's listed successors 
 def removeSameTypeConnections(phonemeObjects):
+    print("Removing same-typed successions...")
     debugMode = False
     for key in phonemeObjects.keys():
         phonemeObj = phonemeObjects[key]
         if debugMode: print("'" + phonemeObj.phonemeSymbol + "(" + phonemeObj.phonemeType + ") being checked for like-typed successors.")
         # retain only differently typed objects
-        keysForDeletion = []
+        keysForRemoval = []
         # accumulate probabilities of retained objects
         cumulativeProb = 0
         for key in phonemeObj.successors.keys():
             if phonemeObj.successors[key].phonemeType == phonemeObj.phonemeType:
                 # remove phoneme item from dict
-                keysForDeletion.append(key)
+                keysForRemoval.append(key)
             else:
                 # add retained keys probability to cumulative
                 cumulativeProb += phonemeObj.successorProbabilities[key]
         if debugMode: print("...deleting keys: " + ",".join(keysForDeletion))
-        for key in keysForDeletion:
-            del phonemeObj.successors[key]
-            del phonemeObj.successorProbabilities[key]
+        # Prompt node to eject keys from successor dicts
+        phonemeObj.removeSuccessors(keysForRemoval)
         if debugMode: print("...keys after deletion: " + ",".join(phonemeObj.successors.keys()))
 
+# Remove zero-probability successors
+def pruneNetwork(phonemeObjects):
+    debugMode = False
+    print("Pruning network of zero-probability successions...")
+    for phonemeKey in phonemeObjects:
+        keysForRemoval = []
+        for successorKey in phonemeObjects[phonemeKey].successors:
+            # Check probability of successor
+            if phonemeObjects[phonemeKey].successorProbabilities[successorKey] == 0:
+                # Add to removal list
+                keysForRemoval.append(successorKey)
+        if debugMode: print("Phoneme '" + phonemeKey + "' is losing " + str(len(keysForRemoval)) + " of " + str(len(phonemeObjects[phonemeKey].successors.keys())) + " successors.")
+        phonemeObjects[phonemeKey].removeSuccessors(keysForRemoval)
+
 def addEmptyInitiator(phonemeObjects):
-    print("\nAdding empty initiator phoneme...")
+    print("Adding empty initiator phoneme...")
     # Create empty-phoneme object
     emptySymbol = ""
     emptyType = "none"
     emptyExample = "not applicable"
+    baseProbability = 0
     positionalProbability = 1
     emptyGraphemes = [""]
-    emptyInitiator = Phoneme.Phoneme(emptySymbol, emptyType, emptyExample, positionalProbability, emptyGraphemes)
+    emptyInitiator = Phoneme.Phoneme(emptySymbol, emptyType, emptyExample, baseProbability, positionalProbability, emptyGraphemes)
     # Provide all phonemes as successors of the initiator with equal probability
     baseProbability = 1.0
     for phonemeSymbol in phonemeObjects:
@@ -112,8 +148,9 @@ def normaliseSuccessorProbabilities(phonemeObjects):
             summedProbabilities += successorProbability
         if debugMode: print("Unnormalised probability for '" + phonemeObjects[phonemeKey].phonemeSymbol + "': " + str(summedProbabilities))
         # Divide each probability by this total
-        for successorKey in phonemeObjects[phonemeKey].successorProbabilities:
-            phonemeObjects[phonemeKey].successorProbabilities[successorKey] /= summedProbabilities
+        if summedProbabilities != 0:
+            for successorKey in phonemeObjects[phonemeKey].successorProbabilities:
+                phonemeObjects[phonemeKey].successorProbabilities[successorKey] /= summedProbabilities
         if debugMode:
             summedProbabilities = 0
             for successorProbability in phonemeObjects[phonemeKey].successorProbabilities.values():
@@ -131,7 +168,7 @@ def testSuccessorNormalisation(phoneme):
 
 
 ## START OF PROGRAM ROUTINE ##
-print("Markov Phonemes!")
+print("Markov Phonemes!\n")
 
 # Phoneme Lists
 vowelPhonemes = ['a', 'e', 'i', 'o', 'u', 'ae', 'ee', 'ie', 'oe', 'ue', 'oo', 'ar', 'ur', 'or', 'au', 'er', 'ow', 'oi', 'air', 'ear']
@@ -167,13 +204,23 @@ removeSameTypeConnections(phonemeObjects)
 # Add empty-string phoneme as initiation point
 addEmptyInitiator(phonemeObjects)
 
+# Remove successor connections from network if they are zero-probability
+pruneNetwork(phonemeObjects)
+
 # Normalise successor probabilities for all nodes
 normaliseSuccessorProbabilities(phonemeObjects)
 
+# Print information on each phoneme in the network, including 
+#printPhonemes(phonemeObjects, True)
+
 # Generate words from network
-totalWords = 10
+totalWords = 20000
 generatedWords = []
 generateWords(generatedWords, totalWords, phonemeObjects)
 
+# Print successor-usage information for each phoneme
+printSuccessorUsages(phonemeObjects)
+
 # Print generated list
-printGeneratedWords(generatedWords)
+#printGeneratedWords(generatedWords)
+
