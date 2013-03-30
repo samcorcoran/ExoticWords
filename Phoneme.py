@@ -128,15 +128,13 @@ class Phoneme:
                 observedFrequency = float(successorUses) / totalSuccessors
                 # Print info about probability versus frequency
                 print("\t" + nextSuccessor + " (p = " + str(round(successorProbability, 2)) + ") total uses: " + str(successorUses) + " (" + str(round(observedFrequency, 2)) + ")")
-                nextDeviation = (observedFrequency-successorProbability)/successorProbability
+                # Calculate standardised deviation between this successor's expected frequency and observed frequency
+                nextDeviation = (observedFrequency-successorProbability)/successorProbability                
                 deviation.append(nextDeviation)
+            # Display standard deviation for this phoneme's successors from their intended probabilities (i.e. frequencies)
+            print("\tDeviation: " + str(round(sum(deviation)/len(deviation), 2)))
         else:
             print("\tNo successors.")
-        # Calculate standard deviation
-        print("\tDeviation: " + str(round(sum(deviation)/len(deviation), 2)))
-            
-        
-        
         
 
         

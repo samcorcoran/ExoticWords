@@ -214,7 +214,7 @@ normaliseSuccessorProbabilities(phonemeObjects)
 #printPhonemes(phonemeObjects, True)
 
 # Generate words from network
-totalWords = 20000
+totalWords = 20
 generatedWords = []
 generateWords(generatedWords, totalWords, phonemeObjects)
 
@@ -222,5 +222,5 @@ generateWords(generatedWords, totalWords, phonemeObjects)
 printSuccessorUsages(phonemeObjects)
 
 # Print generated list
-#printGeneratedWords(generatedWords)
+printGeneratedWords(generatedWords)
 
