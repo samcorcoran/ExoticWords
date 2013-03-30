@@ -40,6 +40,30 @@ class Phoneme:
         # Use phoneme symbol as key for accessing probabilities also
         self.successorProbabilities[newSuccessorPhoneme.phonemeSymbol] = selectionProbability
 
+    # Prompts phoneme to select a successor based on stored probabilities
+    def chooseSuccessor(self, phonemePosition, wordLength):
+        debugMode = False
+        # Phoneme position within word is used for positional probabilities
+        randSample = random.random()
+        # Sum probabilities of possible successor phonemes
+        cumulativeProbability = 0
+        # Take any phoneme to act as temporary value
+        chosenPhoneme = next(iter(self.successors.values()))
+        ignoredItems = []
+        # Construct ad-hoc CDF by iterating through normalized successors, stopping when sample falls inside an interval
+        for phonemeKey in self.successors:
+            # 'choose' phoneme for next interval, and if loop ends before break then last phoneme in successors dict will be chosen by default
+            chosenPhoneme = self.successors[phonemeKey]
+            cumulativeProbability += self.successorProbabilities[phonemeKey]
+            if randSample < cumulativeProbability:
+                # sample has fallen within the interval of this phoneme, thereby selecting it, so terminate search
+                break
+            ignoredItems += phonemeKey
+        if debugMode: print("Current phoneme '" + self.phonemeSymbol + "' chose '" + chosenPhoneme.phonemeSymbol + "' cumProb: " + str(cumulativeProbability) + " > sample: " + str(randSample))
+        if debugMode: print(" ignoredItems (" + str(len(ignoredItems)) + "): " + ", ".join(ignoredItems))
+        # Return chosen successor
+        return chosenPhoneme
+
     def getRandomGrapheme(self):
         debugMode = False
         chosenGrapheme = random.choice(self.graphemes)
