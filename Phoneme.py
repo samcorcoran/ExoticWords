@@ -1,3 +1,5 @@
+import random
+
 # A phoneme exists as a unit
 class Phoneme:
     #Phonemes can be vowel phonemes or consonant phonemes
@@ -38,7 +40,10 @@ class Phoneme:
         # Use phoneme symbol as key for accessing probabilities also
         self.successorProbabilities[newSuccessorPhoneme.phonemeSymbol] = selectionProbability
 
-    def reportContents(self, verbose):
+    def getRandomGrapheme(self):
+        return random.choice(self.graphemes)        
+
+    def reportPhonemeInfo(self, verbose):
         # Print info about this node, with additional lines if verbosity was requested
         print("Phoneme: '" + self.phonemeSymbol + "'")
         if verbose: print("\tExample word: " + self.phonemeExample)
