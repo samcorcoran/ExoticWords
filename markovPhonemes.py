@@ -12,8 +12,9 @@ def createPhonemeObjects(phonemeObjects, newPhonemes, phonemeType):
     # Loop through phonemes, creating objects
     for phoneme in newPhonemes:
         # Create a phoneme object
-        baseProbability = random.random()
+        baseProbability = determinePhonemeProbability(phoneme)
         positionalRand = random.random()
+        # Positional probabilities apply modifiers that incline certain phonemes towards certain positional occurrences
         positionalProbabilities = []
         usePosProbs = True
         if usePosProbs:
@@ -93,8 +94,8 @@ def fullyConnectNetwork(phonemeObjects):
 # Randomly determines popularity of phoneme, allowing approx percentages of high and low probability successors to be controlled
 def determinePhonemeProbability(phonemeKey):
     successorProbability = 0
-    popularThreshold = 0.9
-    regularThreshold = 0.6
+    popularThreshold = 0.6
+    regularThreshold = 0.3
     rand = random.random()
     # Determine whether successor will be popular or regular
     if rand > popularThreshold:
@@ -158,7 +159,7 @@ def addEmptyInitiator(phonemeObjects):
     # Provide all phonemes as successors of the initiator with equal probability
     baseProbability = 1.0
     for phonemeSymbol in phonemeObjects:
-        baseProbability = determinePhonemeProbability(phonemeSymbol)
+        baseProbability = phonemeObjects[phonemeSymbol].baseProbability
         emptyInitiator.addSuccessor(phonemeObjects[phonemeSymbol], baseProbability)
     # Add the empty initiator to dictionary
     phonemeObjects[""] = emptyInitiator
