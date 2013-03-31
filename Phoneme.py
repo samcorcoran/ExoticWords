@@ -68,15 +68,15 @@ class Phoneme:
         ignoredItems = []
         adjustedSuccessorProbabilities = self.adjustProbabilities(phonemePosition, wordLength)
         # Construct ad-hoc CDF by iterating through normalized successor probabilities, stopping when sample falls inside an interval
-        for phonemeKey in self.successors:
+        for successorKey in self.successors:
             # 'choose' phoneme for next interval, and if loop ends before break then last phoneme in successors dict will be chosen by default
-            chosenPhoneme = self.successors[phonemeKey]
-            cumulativeProbability += adjustedSuccessorProbabilities[phonemeKey]
+            chosenPhoneme = self.successors[successorKey]
+            cumulativeProbability += adjustedSuccessorProbabilities[successorKey]
             if randSample < cumulativeProbability:
                 # sample has fallen within the interval of this phoneme, thereby selecting it, so terminate search
                 break
-            ignoredItems += phonemeKey
-            
+            ignoredItems += successorKey
+        if chosenPhoneme.phonemeSymbol == 'k': print("\tK in position " + str(phonemePosition+1))
         # Record this choice for diagnostic purposes
         if not chosenPhoneme.phonemeSymbol in self.successorUsage:
             # First time successor was selected for this phoneme, so register one use
@@ -84,7 +84,7 @@ class Phoneme:
         else:
             # Successor has been chosen before; counter is incremented
             self.successorUsage[chosenPhoneme.phonemeSymbol] += 1       
-        
+        if debugMode and phonemePosition == 0: print("\nNew word being generated...")
         if debugMode: print("Current phoneme '" + self.phonemeSymbol + "' chose '" + chosenPhoneme.phonemeSymbol + "' cumProb: " + str(cumulativeProbability) + " > sample: " + str(randSample))
         if debugMode: print(" ignoredItems (" + str(len(ignoredItems)) + "): " + ", ".join(ignoredItems))
         # Return chosen successor
@@ -92,16 +92,30 @@ class Phoneme:
 
     # Incorporates variable factors into successor probabilities, such as positionalProbabilities, and returns new normalised probabilities
     def adjustProbabilities(self, phonemePosition, wordLength):
+        debugMode = False
         adjustedProbabilities = dict()
-        # Adjust each probability and store it in new dictionary
-        cumulativeProbability = 0
-        for successorKey, successorProb in self.successorProbabilities.items():
-            adjustedProbabilities[successorKey] = successorProb * self.successors[successorKey].getPositionalModifier(phonemePosition, wordLength)
-            cumulativeProbability += adjustedProbabilities[successorKey]
-        # Normalise new probability values
-        normalisingScale = cumulativeProbability / len(adjustedProbabilities.keys())
-        for successorKey, adjustedProb in adjustedProbabilities.items():
-            adjustedProb *= normalisingScale
+        if len(self.successorProbabilities.keys()) > 0:
+            # Adjust each probability and store it in new dictionary
+            cumulativeProbability = 0
+            for successorKey, successorProb in self.successorProbabilities.items():
+                modifier = self.successors[successorKey].getPositionalModifier(phonemePosition, wordLength)
+                adjustedProbabilities[successorKey] = successorProb * modifier
+                cumulativeProbability += adjustedProbabilities[successorKey]
+            # Modifier can force all probabilities to zero, so dict does not need to normalise (avoid divide by zero)
+            if cumulativeProbability != 0:
+                # Normalise new probability values
+                for successorKey, adjustedProb in adjustedProbabilities.items():
+                    adjustedProbabilities[successorKey] /= cumulativeProbability
+            else:
+                if debugMode: print("Phoneme '" + self.phonemeSymbol + "' cumulative successor probalities is zero.")
+            # Test normalisation
+            if debugMode:
+                cumulativeProbability = 0
+                for key, probability in adjustedProbabilities.items():
+                    cumulativeProbability += probability
+                print("Adjusted probabilities has " + str(len(adjustedProbabilities.keys())) + " entries, probabilities sum to: " + str(cumulativeProbability))
+        else:
+            if debugMode: (self.phonemeSymbol + " has no successors to adjust probabilities for.")
         return adjustedProbabilities
 
     # Converts distance through word into sample from positionalProbabilities, normalised and ready to be applied
@@ -121,7 +135,6 @@ class Phoneme:
             # No positional probabilities, so return no-modifier of '1'
             return 1
         
-
     def getRandomGrapheme(self):
         debugMode = False
         chosenGrapheme = random.choice(self.graphemes)

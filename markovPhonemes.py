@@ -15,15 +15,19 @@ def createPhonemeObjects(phonemeObjects, newPhonemes, phonemeType):
         baseProbability = random.random()
         positionalRand = random.random()
         positionalProbabilities = []
-        if positionalRand > 0.7:
-            # Phoneme will be an 'late' one, appearing more frequently at the end of a word
-            positionalProbabilities = [0, 0.25, 0.5, 0.75, 1.0]
-        elif positionalRand < 0.3:
-            # Phoneme will be an 'early' one, appearing more frequently at the beginning of a word
-            positionalProbabilities = [1.0, 0.75, 0.5, 0]
-        else:
-            # Phoneme will be given an even likelihood to occur throughout a word
-            positionalProbabilities = [1]
+        usePosProbs = True
+        if usePosProbs:
+            if positionalRand > 0.7:
+                # Phoneme will be an 'late' one, appearing more frequently at the end of a word
+                print("Phoneme '" + phoneme + "' is late")
+                positionalProbabilities = [0, 0.1, 0.2, 0.4, 1.0]
+            elif positionalRand < 0.3 or phoneme == 'k':
+                # Phoneme will be an 'early' one, appearing more frequently at the beginning of a word
+                positionalProbabilities = [1.0, 0.5, 0.1, 0, 0]
+                print("Phoneme '" + phoneme + "' is early")
+            else:
+                # Phoneme will be given an even likelihood to occur throughout a word
+                positionalProbabilities = []
             
         graphemes = [phoneme]
         nextPhoneme = Phoneme.Phoneme(phoneme, phonemeType, 'example '+phoneme, baseProbability, positionalProbabilities, graphemes)
@@ -31,11 +35,11 @@ def createPhonemeObjects(phonemeObjects, newPhonemes, phonemeType):
         phonemeObjects[nextPhoneme.phonemeSymbol] = nextPhoneme
 
 def generateWords(generatedWords, totalWords, phonemeObjects):
-    debugMode = False
+    debugMode = True
     print("Generating (" + str(totalWords) + ") words...")
     for nextWordIndex in range(totalWords):
         if debugMode: print("Generating word " + str(nextWordIndex))
-        wordLength = random.randint(3,6)
+        wordLength = random.randint(20,30)
         finishedWord = ""
         symbolString = ""
         phonemeCounter = 0
@@ -43,7 +47,7 @@ def generateWords(generatedWords, totalWords, phonemeObjects):
         latestPhoneme = phonemeObjects[""]
         for nextPhonemeIndex in range(wordLength):
             if latestPhoneme.successors:
-                if debugMode: print("Successors: " + ", ".join(latestPhoneme.successors))
+                #if debugMode: print("Successors: " + ", ".join(latestPhoneme.successors))
                 chosenPhoneme = latestPhoneme.chooseSuccessor(phonemeCounter, wordLength)
                 finishedWord += chosenPhoneme.getRandomGrapheme()
                 #finishedWord += chosenPhoneme.phonemeSymbol
@@ -83,21 +87,26 @@ def fullyConnectNetwork(phonemeObjects):
             nextSuccessor = phonemeObjects[successorKey]
             # Add this object as successor
             if debugMode: print(phonemeObj.phonemeSymbol + " adding phoneme " + nextSuccessor.phonemeSymbol + " as successor.")
-            # Determine whether successor will be popular or regular
-            successorProbability = 0
-            popularityThreshold = 0.9
-            rand = random.random()
-            if rand > popularityThreshold:
-                # successor is popular, high probability
-                successorProbability = random.uniform(0.7, 1)
-            elif rand > 0.6:
-                # successor is regular, low probability
-                successorProbability = random.uniform(0, 0.01)
-            else:
-                # designated non-successor, zero-probability
-                successorProbability = 0
-                
+            successorProbability = determinePhonemeProbability(successorKey)
             phonemeObj.addSuccessor(nextSuccessor, successorProbability)
+
+# Randomly determines popularity of phoneme, allowing approx percentages of high and low probability successors to be controlled
+def determinePhonemeProbability(phonemeKey):
+    successorProbability = 0
+    popularThreshold = 1
+    regularThreshold = 0.6
+    rand = random.random()
+    # Determine whether successor will be popular or regular
+    if rand > popularThreshold or phonemeKey == 'k':
+        # successor is popular, high probability
+        successorProbability = random.uniform(0.7, 1)
+    elif rand > regularThreshold:
+        # successor is regular, low probability
+        successorProbability = random.uniform(0, 0.01)
+    else:
+        # designated non-successor, zero-probability
+        successorProbability = 0.00001
+    return successorProbability
 
 # Removes from each node's listed successors 
 def removeSameTypeConnections(phonemeObjects):
@@ -148,6 +157,7 @@ def addEmptyInitiator(phonemeObjects):
     emptyInitiator = Phoneme.Phoneme(emptySymbol, emptyType, emptyExample, baseProbability, positionalProbability, emptyGraphemes)
     # Provide all phonemes as successors of the initiator with equal probability
     baseProbability = 1.0
+    baseProbability = determinePhonemeProbability("")
     for phonemeSymbol in phonemeObjects:
         emptyInitiator.addSuccessor(phonemeObjects[phonemeSymbol], baseProbability)
     # Add the empty initiator to dictionary
@@ -192,8 +202,9 @@ consonantPhonemes = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p',
 
 debugMode = False
 
-#testVowelPhonemes = ['a', 'e', 'i']
-#testConsonantPhonemes = ['b', 'd', 'k']
+# Test variables
+#vowelPhonemes = ['a', 'e', 'i']
+#consonantPhonemes = ['b', 'd', 'k']
 
 # All phoneme objects must be held together in a list
 phonemeObjects = dict()
