@@ -13,7 +13,20 @@ def createPhonemeObjects(phonemeObjects, newPhonemes, phonemeType):
     for phoneme in newPhonemes:
         # Create a phoneme object
         baseProbability = random.random()
-        nextPhoneme = Phoneme.Phoneme(phoneme, phonemeType, 'example '+phoneme, baseProbability, 1, [phoneme])
+        positionalRand = random.random()
+        positionalProbabilities = []
+        if positionalRand > 0.7:
+            # Phoneme will be an 'late' one, appearing more frequently at the end of a word
+            positionalProbabilities = [0, 0.25, 0.5, 0.75, 1.0]
+        elif positionalRand < 0.3:
+            # Phoneme will be an 'early' one, appearing more frequently at the beginning of a word
+            positionalProbabilities = [1.0, 0.75, 0.5, 0]
+        else:
+            # Phoneme will be given an even likelihood to occur throughout a word
+            positionalProbabilities = [1]
+            
+        graphemes = [phoneme]
+        nextPhoneme = Phoneme.Phoneme(phoneme, phonemeType, 'example '+phoneme, baseProbability, positionalProbabilities, graphemes)
         if debugMode: print("nextPhoneme: " + nextPhoneme.phonemeSymbol)
         phonemeObjects[nextPhoneme.phonemeSymbol] = nextPhoneme
 
@@ -21,20 +34,22 @@ def generateWords(generatedWords, totalWords, phonemeObjects):
     debugMode = False
     print("Generating (" + str(totalWords) + ") words...")
     for nextWordIndex in range(totalWords):
-        if debugMode: print("Generating word " + nextWord)
+        if debugMode: print("Generating word " + str(nextWordIndex))
         wordLength = random.randint(3,6)
         finishedWord = ""
         symbolString = ""
+        phonemeCounter = 0
         # The empty-string phoneme is used to initiate process
         latestPhoneme = phonemeObjects[""]
         for nextPhonemeIndex in range(wordLength):
             if latestPhoneme.successors:
                 if debugMode: print("Successors: " + ", ".join(latestPhoneme.successors))
-                chosenPhoneme = latestPhoneme.chooseSuccessor(len(finishedWord), wordLength)
+                chosenPhoneme = latestPhoneme.chooseSuccessor(phonemeCounter, wordLength)
                 finishedWord += chosenPhoneme.getRandomGrapheme()
                 #finishedWord += chosenPhoneme.phonemeSymbol
                 #finishedWord += chosenPhoneme.phonemeType
                 latestPhoneme = chosenPhoneme
+                phonemeCounter += 1
             else:
                 print("Error: '" + latestPhoneme.phonemeSymbol + "' has no successors (failed on phoneme " + str(nextPhonemeIndex + 1) + " of " + str(wordLength) + ")") 
         generatedWords.append(finishedWord)
@@ -74,10 +89,10 @@ def fullyConnectNetwork(phonemeObjects):
             rand = random.random()
             if rand > popularityThreshold:
                 # successor is popular, high probability
-                successorProbability = random.uniform(0.8, 1)
+                successorProbability = random.uniform(0.7, 1)
             elif rand > 0.6:
                 # successor is regular, low probability
-                successorProbability = random.uniform(0, 0.1)
+                successorProbability = random.uniform(0, 0.01)
             else:
                 # designated non-successor, zero-probability
                 successorProbability = 0
@@ -219,7 +234,7 @@ generatedWords = []
 generateWords(generatedWords, totalWords, phonemeObjects)
 
 # Print successor-usage information for each phoneme
-printSuccessorUsages(phonemeObjects)
+#printSuccessorUsages(phonemeObjects)
 
 # Print generated list
 printGeneratedWords(generatedWords)

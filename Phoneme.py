@@ -1,4 +1,5 @@
 import random
+import math
 
 # A phoneme exists as a unit
 class Phoneme:
@@ -65,11 +66,12 @@ class Phoneme:
         # Take any phoneme to act as temporary value
         chosenPhoneme = next(iter(self.successors.values()))
         ignoredItems = []
-        # Construct ad-hoc CDF by iterating through normalized successors, stopping when sample falls inside an interval
+        adjustedSuccessorProbabilities = self.adjustProbabilities(phonemePosition, wordLength)
+        # Construct ad-hoc CDF by iterating through normalized successor probabilities, stopping when sample falls inside an interval
         for phonemeKey in self.successors:
             # 'choose' phoneme for next interval, and if loop ends before break then last phoneme in successors dict will be chosen by default
             chosenPhoneme = self.successors[phonemeKey]
-            cumulativeProbability += self.successorProbabilities[phonemeKey]
+            cumulativeProbability += adjustedSuccessorProbabilities[phonemeKey]
             if randSample < cumulativeProbability:
                 # sample has fallen within the interval of this phoneme, thereby selecting it, so terminate search
                 break
@@ -87,6 +89,38 @@ class Phoneme:
         if debugMode: print(" ignoredItems (" + str(len(ignoredItems)) + "): " + ", ".join(ignoredItems))
         # Return chosen successor
         return chosenPhoneme
+
+    # Incorporates variable factors into successor probabilities, such as positionalProbabilities, and returns new normalised probabilities
+    def adjustProbabilities(self, phonemePosition, wordLength):
+        adjustedProbabilities = dict()
+        # Adjust each probability and store it in new dictionary
+        cumulativeProbability = 0
+        for successorKey, successorProb in self.successorProbabilities.items():
+            adjustedProbabilities[successorKey] = successorProb * self.successors[successorKey].getPositionalModifier(phonemePosition, wordLength)
+            cumulativeProbability += adjustedProbabilities[successorKey]
+        # Normalise new probability values
+        normalisingScale = cumulativeProbability / len(adjustedProbabilities.keys())
+        for successorKey, adjustedProb in adjustedProbabilities.items():
+            adjustedProb *= normalisingScale
+        return adjustedProbabilities
+
+    # Converts distance through word into sample from positionalProbabilities, normalised and ready to be applied
+    def getPositionalModifier(self, phonemePosition, wordLength):
+        if len(self.positionalProbabilities) != 0:
+            # Calculate proportion of distance through word that this position appears at
+            wordDistance = float(phonemePosition)/wordLength
+            # Number of positionalProbability entries determines how 'wide' each interval is
+            intervalWidth = 1.0/len(self.positionalProbabilities)
+            # Determine which interval the wordDistance sample point falls into
+            positionalIndex = int(math.floor(wordDistance/intervalWidth))
+            # Fix final phoneme position so that it falls in the last interval
+            if wordDistance == 1.0:
+                positionalIndex = len(self.positionalProbabilities) - 1
+            return self.positionalProbabilities[positionalIndex]
+        else:
+            # No positional probabilities, so return no-modifier of '1'
+            return 1
+        
 
     def getRandomGrapheme(self):
         debugMode = False
