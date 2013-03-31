@@ -76,6 +76,7 @@ class Phoneme:
                 # sample has fallen within the interval of this phoneme, thereby selecting it, so terminate search
                 break
             ignoredItems += successorKey
+        if self.phonemeSymbol == "": self.reportPhonemeInfo(True)
         if chosenPhoneme.phonemeSymbol == 'k': print("\tK in position " + str(phonemePosition+1))
         # Record this choice for diagnostic purposes
         if not chosenPhoneme.phonemeSymbol in self.successorUsage:

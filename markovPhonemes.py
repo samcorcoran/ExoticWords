@@ -157,8 +157,8 @@ def addEmptyInitiator(phonemeObjects):
     emptyInitiator = Phoneme.Phoneme(emptySymbol, emptyType, emptyExample, baseProbability, positionalProbability, emptyGraphemes)
     # Provide all phonemes as successors of the initiator with equal probability
     baseProbability = 1.0
-    baseProbability = determinePhonemeProbability("")
     for phonemeSymbol in phonemeObjects:
+        baseProbability = determinePhonemeProbability(phonemeSymbol)
         emptyInitiator.addSuccessor(phonemeObjects[phonemeSymbol], baseProbability)
     # Add the empty initiator to dictionary
     phonemeObjects[""] = emptyInitiator
