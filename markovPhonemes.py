@@ -21,7 +21,7 @@ def createPhonemeObjects(phonemeObjects, newPhonemes, phonemeType):
                 # Phoneme will be an 'late' one, appearing more frequently at the end of a word
                 print("Phoneme '" + phoneme + "' is late")
                 positionalProbabilities = [0, 0.1, 0.2, 0.4, 1.0]
-            elif positionalRand < 0.3 or phoneme == 'k':
+            elif positionalRand < 0.3:
                 # Phoneme will be an 'early' one, appearing more frequently at the beginning of a word
                 positionalProbabilities = [1.0, 0.5, 0.1, 0, 0]
                 print("Phoneme '" + phoneme + "' is early")
@@ -35,11 +35,11 @@ def createPhonemeObjects(phonemeObjects, newPhonemes, phonemeType):
         phonemeObjects[nextPhoneme.phonemeSymbol] = nextPhoneme
 
 def generateWords(generatedWords, totalWords, phonemeObjects):
-    debugMode = True
+    debugMode = False
     print("Generating (" + str(totalWords) + ") words...")
     for nextWordIndex in range(totalWords):
         if debugMode: print("Generating word " + str(nextWordIndex))
-        wordLength = random.randint(20,30)
+        wordLength = random.randint(3,6)
         finishedWord = ""
         symbolString = ""
         phonemeCounter = 0
@@ -47,7 +47,7 @@ def generateWords(generatedWords, totalWords, phonemeObjects):
         latestPhoneme = phonemeObjects[""]
         for nextPhonemeIndex in range(wordLength):
             if latestPhoneme.successors:
-                #if debugMode: print("Successors: " + ", ".join(latestPhoneme.successors))
+                if debugMode: print("Successors: " + ", ".join(latestPhoneme.successors))
                 chosenPhoneme = latestPhoneme.chooseSuccessor(phonemeCounter, wordLength)
                 finishedWord += chosenPhoneme.getRandomGrapheme()
                 #finishedWord += chosenPhoneme.phonemeSymbol
@@ -93,11 +93,11 @@ def fullyConnectNetwork(phonemeObjects):
 # Randomly determines popularity of phoneme, allowing approx percentages of high and low probability successors to be controlled
 def determinePhonemeProbability(phonemeKey):
     successorProbability = 0
-    popularThreshold = 1
+    popularThreshold = 0.9
     regularThreshold = 0.6
     rand = random.random()
     # Determine whether successor will be popular or regular
-    if rand > popularThreshold or phonemeKey == 'k':
+    if rand > popularThreshold:
         # successor is popular, high probability
         successorProbability = random.uniform(0.7, 1)
     elif rand > regularThreshold:
