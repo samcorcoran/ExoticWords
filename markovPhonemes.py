@@ -13,12 +13,12 @@ def createPhonemeObjects(phonemeObjects, newPhonemes, phonemeType):
     # Loop through phonemes, creating objects
     for phoneme in newPhonemes:
         # Create a phoneme object
-        baseProbability = determinePhonemeProbability(phoneme)
-        positionalRand = random.random()
+        baseProbability = determinePhonemeProbability()
         # Positional probabilities apply modifiers that incline certain phonemes towards certain positional occurrences
         positionalProbabilities = []
         usePosProbs = True
         if usePosProbs:
+            positionalRand = random.random()
             if positionalRand > 0.7:
                 # Phoneme will be an 'late' one, appearing more frequently at the end of a word
                 print("Phoneme '" + phoneme + "' is late")
@@ -151,26 +151,32 @@ def fullyConnectNetwork(phonemeObjects):
             nextSuccessor = phonemeObjects[successorKey]
             # Add this object as successor
             if debugMode: print(phonemeObj.phonemeSymbol + " adding phoneme " + nextSuccessor.phonemeSymbol + " as successor.")
-            successorProbability = determinePhonemeProbability(successorKey)
+            successorProbability = getNoiseAlteredBaseProb(nextSuccessor)
             phonemeObj.addSuccessor(nextSuccessor, successorProbability)
 
-# Randomly determines popularity of phoneme, allowing approx percentages of high and low probability successors to be controlled
-def determinePhonemeProbability(phonemeKey):
-    successorProbability = 0
+# Randomly determines popularity of phoneme, allowing approx percentages of high and low probability phonemes to be controlled
+def determinePhonemeProbability():
+    phonemeProbability = 0
     popularThreshold = 0.6
     regularThreshold = 0.3
     rand = random.random()
-    # Determine whether successor will be popular or regular
+    # Determine whether phoneme will be popular or regular
     if rand > popularThreshold:
-        # successor is popular, high probability
-        successorProbability = sampleTruncatedNormalDist(0.5, 1, 0.8, 0.08)
+        # popular, high probability
+        phonemeProbability = sampleTruncatedNormalDist(0.5, 1, 0.8, 0.08)
     elif rand > regularThreshold:
-        # successor is regular, low probability
-        successorProbability = sampleTruncatedNormalDist(0, 0.1, 0.01, 0.05)
+        # regular, low probability
+        phonemeProbability = sampleTruncatedNormalDist(0, 0.1, 0.01, 0.05)
     else:
-        # designated non-successor, almost zero-probability (to avoid some phonemes having no successors)
-        successorProbability = 0.00001
-    return successorProbability
+        # very unlikely, almost zero-probability (to avoid some phonemes having no successors)
+        phonemeProbability = 0.00001
+    return phonemeProbability
+
+# Returns a probability value generated from the given phoneme's baseProbability, modified by noise
+def getNoiseAlteredBaseProb(phoneme):
+    # Normal distribution sample (mean, sd)
+    noise = sampleTruncatedNormalDist(0, 2, 1, 0.25)
+    return phoneme.baseProbability * noise
 
 # Recursive sampling of normal distribution until a sample falls within interval
 def sampleTruncatedNormalDist(minSample, maxSample, mean, standardDev):
@@ -208,7 +214,7 @@ def testNormalDist(iterations, minSample, maxSample, mean, standardDev, normalis
                 break
     if normaliseResults:
         for i in range(len(intervalCounter)):
-            intervalCounter[i] = round(float(intervalCounter[i]) / iterations, 2)
+            intervalCounter[i] = round(float(intervalCounter[i]) / iterations, 3)
     print("\nDistribution (mu=" + str(mean) + ", sd=" + str(standardDev) + ", interval=[" + str(minSample) + "," + str(maxSample) + "]):")
     print(intervalCounter)
 
@@ -265,7 +271,7 @@ def addEmptyInitiator(successorObjects):
     # Probability that for each successor stored in dict, keyed on successor phonemeSymbol
     successorProbabilities = dict()
     for successorKey in successorObjects:
-        successorProbabilities[successorKey] = successorObjects[successorKey].baseProbability
+        successorProbabilities[successorKey] = getNoiseAlteredBaseProb(successorObjects[successorKey])
     # Place empty initiator as single phoneme in list,
     # Corresponding list with recently created dict of successor probabilities also placed in list
     addSequenceOfSuccessors([emptyInitiator], [successorProbabilities], successorObjects)
@@ -388,4 +394,5 @@ generateAndPrintParagraph(paragraphTotalLines, paragraphWidth, phonemeObjects)
 #testNormalDist(5000, 0.5, 1.5, 1, 0.1, True)
 #testNormalDist(5000, 0, 7, 2, 2, True)
 #testNormalDist(5000, 3, 10, 4.5, 2, True)
+#testNormalDist(5000, 0, 2, 1, 0.25, True)
 
