@@ -249,11 +249,12 @@ def pruneNetwork(phonemeObjects):
         if debugMode: print("Phoneme '" + phonemeKey + "' is losing " + str(len(keysForRemoval)) + " of " + str(len(phonemeObjects[phonemeKey].successors.keys())) + " successors.")
         phonemeObjects[phonemeKey].removeSuccessors(keysForRemoval)
 
-def addEmptyInitiator(phonemeObjects):
+# Initiator phoneme is the starting state for word generation, with all possible first-phonemes as its successors
+def addEmptyInitiator(successorObjects):
     print("Adding empty initiator phoneme...")
     # Create empty-phoneme object
     emptySymbol = ""
-    emptyType = "none"
+    emptyType = "initiator"
     emptyExample = "not applicable"
     baseProbability = 0
     positionalProbability = 1
@@ -261,11 +262,33 @@ def addEmptyInitiator(phonemeObjects):
     emptyInitiator = Phoneme.Phoneme(emptySymbol, emptyType, emptyExample, baseProbability, positionalProbability, emptyGraphemes)
     # Provide all phonemes as successors of the initiator with equal probability
     baseProbability = 1.0
-    for phonemeSymbol in phonemeObjects:
-        baseProbability = phonemeObjects[phonemeSymbol].baseProbability
-        emptyInitiator.addSuccessor(phonemeObjects[phonemeSymbol], baseProbability)
+    # Probability that for each successor stored in dict, keyed on successor phonemeSymbol
+    successorProbabilities = dict()
+    for successorKey in successorObjects:
+        successorProbabilities[successorKey] = successorObjects[successorKey].baseProbability
+    # Place empty initiator as single phoneme in list,
+    # Corresponding list with recently created dict of successor probabilities also placed in list
+    addSequenceOfSuccessors([emptyInitiator], [successorProbabilities], successorObjects)
     # Add the empty initiator to dictionary
     phonemeObjects[""] = emptyInitiator
+
+# Given list of phoneme takes all in given dict as successors
+# For use in cases such as the emptyInitiator, which should have all phoneme objects as successors
+# - predecessorPhonemeObjects: list of phoneme objects
+# - successorProbabilities: list (corresponding with predecessor list) of dicts, containing probabilities keyed on successor phonemeSymbols
+# - successorPhonemeObjects: dict of phonemes using symbol as key
+def addSequenceOfSuccessors(predecessorPhonemeObjects, successorProbabilities, successorPhonemeObjects):
+    for predecessorIndex in range(len(predecessorPhonemeObjects)):
+        phoneme = predecessorPhonemeObjects[predecessorIndex]
+        # Collect dict of successor probabilities
+        nextSuccessorProbabilities = successorProbabilities[predecessorIndex]
+        # Iterate through successors, attaching each to the current phoneme
+        for successorKey, successorPhoneme in successorPhonemeObjects.items():
+            if successorKey in nextSuccessorProbabilities.keys():
+                probability = nextSuccessorProbabilities[successorKey]
+                predecessorPhonemeObjects[predecessorIndex].addSuccessor(successorPhoneme, probability)
+            else:
+                print("Error: Phoneme '" + phoneme.phonemeSymbol + "' successor '" + successorKey + "' not added; no probability provided.")
 
 def normaliseSuccessorProbabilities(phonemeObjects):
     debugMode = False
