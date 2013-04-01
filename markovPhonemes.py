@@ -84,6 +84,47 @@ def printGeneratedWords(generatedWords):
     for nextWord in generatedWords:
         print("\t" + str.capitalize(nextWord))
 
+# Generates and prints words to fill multiple lines of given character length, placing spaces between words and occassional full stops
+def generateAndPrintParagraph(totalLines, lineWidth, phonemeObjects):
+    paragraph = ""
+    capitalizeNext = True
+    # Indicate if word length will be calculted in characters or phonemes
+    measureWordLengthInPhonemes = False
+    # Sentence length counters aid decision of punctuation placement
+    currentSentenceLength = 0
+    minimumSentenceLength = 20
+    # Iterate over required lines
+    for lineNumber in range(totalLines):
+        currentLine = ""
+        while len(currentLine) < lineWidth:
+            # Generate another word for this line
+            wordLength = int(sampleTruncatedNormalDist(0, 7, 3, 2)) + 1
+            # Generate word
+            word, symbolString = generateWord(wordLength, measureWordLengthInPhonemes, phonemeObjects)
+            # Words at beginning of sentences will be capitalized, based on flag
+            if capitalizeNext:
+                capitalizeNext = False
+                word = str.capitalize(word)
+            # Chance of sentence ending increases the more the sentence exceeds the minimum length
+            currentSentenceLength += len(word)
+            if currentSentenceLength > minimumSentenceLength:
+                sentenceOverflow = currentSentenceLength - minimumSentenceLength
+                if random.random() < (0.05 * sentenceOverflow):
+                    # If sentence ends here, add a full stop
+                    word += "."
+                    currentSentenceLength = 0
+                    capitalizeNext = True
+            # Add a space before the next word
+            word += " "
+            currentLine += word
+        # Add a newline symbol
+        currentLine += "\n"
+        # Add line to paragraph
+        paragraph += currentLine
+    # Print the paragraph
+    print("\nParagraph:")
+    print(paragraph)
+
 def printPhonemes(phonemeObjects, verbose):
     print("Total phonemeObjects: " + str(len(phonemeObjects)))
     # For testing, print out contents of phoneme objects
@@ -165,7 +206,7 @@ def testNormalDist(iterations, minSample, maxSample, mean, standardDev, normalis
     if normaliseResults:
         for i in range(len(intervalCounter)):
             intervalCounter[i] = round(float(intervalCounter[i]) / iterations, 2)
-    print("\nDistribution (mu=" + str(mean) + ", sd=" + str(standardDev) + ", interval=[" + str(minSample) + ", " + str(maxSample) + "]):")
+    print("\nDistribution (mu=" + str(mean) + ", sd=" + str(standardDev) + ", interval=[" + str(minSample) + "," + str(maxSample) + "]):")
     print(intervalCounter)
 
 # Removes from each node's listed successors 
@@ -251,7 +292,6 @@ def testSuccessorNormalisation(phoneme):
         keyCounter += 1
     if debugMode: print("Phoneme '" + phoneme.phonemeSymbol + "' cumulativeProb: " + str(cumulativeProb) + " (from " + str(keyCounter) + " successors)")
 
-
 ## START OF PROGRAM ROUTINE ##
 print("Markov Phonemes!\n")
 
@@ -310,9 +350,16 @@ generateWords(generatedWords, totalWords, phonemeObjects)
 # Print generated list
 printGeneratedWords(generatedWords)
 
+# Generate a paragraph of given line length and character width
+paragraphTotalLines = 10
+paragraphWidth = 65
+generateAndPrintParagraph(paragraphTotalLines, paragraphWidth, phonemeObjects)
+
 # Test a distribution (iterations, min, max, mean, sd, normalisation)
 #testNormalDist(5000, 0, 1, 0.5, 0.1, True)
 #testNormalDist(5000, 0.5, 1, 0.8, 0.08, True)
 #testNormalDist(5000, 0, 0.1, 0.01, 0.05, True)
 #testNormalDist(5000, 0.5, 1.5, 1, 0.1, True)
+#testNormalDist(5000, 0, 7, 2, 2, True)
+#testNormalDist(5000, 3, 10, 4.5, 2, True)
 
