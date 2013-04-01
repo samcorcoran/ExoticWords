@@ -76,7 +76,6 @@ def printSuccessorUsages(phonemeObjects):
     for phonemeKey, phoneme in phonemeObjects.items():
         phoneme.reportPhonemeSuccessorUsage()
         
-
 # Adds all phonemes as successors to all other phonemes with a probability of 1
 def fullyConnectNetwork(phonemeObjects):
     debugMode = False
@@ -100,14 +99,54 @@ def determinePhonemeProbability(phonemeKey):
     # Determine whether successor will be popular or regular
     if rand > popularThreshold:
         # successor is popular, high probability
-        successorProbability = random.uniform(0.7, 1)
+        successorProbability = sampleTruncatedNormalDist(0.5, 1, 0.8, 0.08)
     elif rand > regularThreshold:
         # successor is regular, low probability
-        successorProbability = random.uniform(0, 0.01)
+        successorProbability = sampleTruncatedNormalDist(0, 0.1, 0.01, 0.05)
     else:
-        # designated non-successor, zero-probability
+        # designated non-successor, almost zero-probability (to avoid some phonemes having no successors)
         successorProbability = 0.00001
     return successorProbability
+
+# Recursive sampling of normal distribution until a sample falls within interval
+def sampleTruncatedNormalDist(minSample, maxSample, mean, standardDev):
+    # Sample normal distribution
+    sample = random.normalvariate(mean, standardDev)
+    if sample < minSample or sample > maxSample:
+        # If sample is outside of interval, recurse
+        sample = sampleTruncatedNormalDist(minSample, maxSample, mean, standardDev)
+    # Returned sample guaranteed to be within interval
+    return sample
+
+# Generates a number of samples and registers which descrete intervals they fall into
+# This function should be used to test interval-mean-sd combinations before use,
+#  with large numbers of iterations, to provide a human readable impression of sample distribution
+#  e.g.  testNormalDist(500, 0, 1, 0.5, 0.1) resulting in:
+#       [0, 0, 16, 64, 169, 176, 65, 9, 1, 0]
+#   reveals the concentation of samples around the mean. Params can then be adjusted accordingly.
+# Normalisation flag can assist in abstracting away iteration-specifics
+def testNormalDist(iterations, minSample, maxSample, mean, standardDev, normaliseResults):
+    debugMode = False
+    sampleIntervalWidth = maxSample - minSample
+    # Interval will be divided into smaller sub-intervals
+    totalDiscreteIntervals = 10
+    discreteIntervalWidth = float(sampleIntervalWidth) / totalDiscreteIntervals
+    # Each sample that falls within a certain interval 
+    intervalCounter = [0] * totalDiscreteIntervals
+    for i in range(iterations):
+        sample = sampleTruncatedNormalDist(minSample, maxSample, mean, standardDev)
+        # Starting from lowest, determine which interval
+        for counterIndex in range(totalDiscreteIntervals):
+            if sample <= (minSample + (discreteIntervalWidth * (counterIndex+1))):
+                # Sample fell in this interval; increment counter
+                if debugMode: print("Sample: " + str(sample) + ", counterIndex: " + str(counterIndex) + " of " + str(totalDiscreteIntervals) + ",  sample upper bound: " + str(minSample + (discreteIntervalWidth * (counterIndex+1))))
+                intervalCounter[counterIndex] += 1
+                break
+    if normaliseResults:
+        for i in range(len(intervalCounter)):
+            intervalCounter[i] = round(float(intervalCounter[i]) / iterations, 2)
+    print("\nDistribution (mu=" + str(mean) + ", sd=" + str(standardDev) + ", interval=[" + str(minSample) + ", " + str(maxSample) + "]):")
+    print(intervalCounter)
 
 # Removes from each node's listed successors 
 def removeSameTypeConnections(phonemeObjects):
@@ -250,4 +289,10 @@ generateWords(generatedWords, totalWords, phonemeObjects)
 
 # Print generated list
 printGeneratedWords(generatedWords)
+
+# Test a distribution (iterations, min, max, mean, sd, normalisation)
+#testNormalDist(5000, 0, 1, 0.5, 0.1, True)
+#testNormalDist(5000, 0.5, 1, 0.8, 0.08, True)
+#testNormalDist(5000, 0, 0.1, 0.01, 0.05, True)
+#testNormalDist(5000, 0.5, 1.5, 1, 0.1, True)
 
