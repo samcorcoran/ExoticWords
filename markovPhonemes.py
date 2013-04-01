@@ -3,6 +3,7 @@
 
 import random
 import string
+import math
 import Phoneme
 
 def createPhonemeObjects(phonemeObjects, newPhonemes, phonemeType):
@@ -35,29 +36,48 @@ def createPhonemeObjects(phonemeObjects, newPhonemes, phonemeType):
         if debugMode: print("nextPhoneme: " + nextPhoneme.phonemeSymbol)
         phonemeObjects[nextPhoneme.phonemeSymbol] = nextPhoneme
 
+# Generate a list of words
 def generateWords(generatedWords, totalWords, phonemeObjects):
     debugMode = False
     print("Generating (" + str(totalWords) + ") words...")
     for nextWordIndex in range(totalWords):
         if debugMode: print("Generating word " + str(nextWordIndex))
-        wordLength = random.randint(3,6)
-        finishedWord = ""
-        symbolString = ""
-        phonemeCounter = 0
-        # The empty-string phoneme is used to initiate process
-        latestPhoneme = phonemeObjects[""]
-        for nextPhonemeIndex in range(wordLength):
-            if latestPhoneme.successors:
-                if debugMode: print("Successors: " + ", ".join(latestPhoneme.successors))
-                chosenPhoneme = latestPhoneme.chooseSuccessor(phonemeCounter, wordLength)
-                finishedWord += chosenPhoneme.getRandomGrapheme()
-                #finishedWord += chosenPhoneme.phonemeSymbol
-                #finishedWord += chosenPhoneme.phonemeType
-                latestPhoneme = chosenPhoneme
-                phonemeCounter += 1
-            else:
-                print("Error: '" + latestPhoneme.phonemeSymbol + "' has no successors (failed on phoneme " + str(nextPhonemeIndex + 1) + " of " + str(wordLength) + ")") 
+        wordLength = int(sampleTruncatedNormalDist(3, 10, 4.5, 2))
+        # Indicate if word length will be calculted in characters or phonemes
+        measureLengthInPhonemes = False
+        # Call generator function
+        finishedWord, symbolString = generateWord(wordLength, measureLengthInPhonemes, phonemeObjects)
+        # Add generated word to list
         generatedWords.append(finishedWord)
+
+# Generates a single word, with wordlength measured in characters or phonemes
+#  Measuring length in characters gives tighter control over string length, but may prevent the last
+#  phoneme generated from knowing it is the terminating phoneme which may affect positional probabilities)
+def generateWord(desiredWordLength, measureLengthInPhonemes, phonemeObjects):
+    word = ""
+    currentLength = 0
+    symbolString = ""
+    # The empty-string phoneme is used to initiate process
+    latestPhoneme = phonemeObjects[""]
+    while currentLength < desiredWordLength:       
+        if latestPhoneme.successors:
+            if debugMode: print("Successors: " + ", ".join(latestPhoneme.successors))
+            chosenPhoneme = latestPhoneme.chooseSuccessor(currentLength+1, desiredWordLength)
+            word += chosenPhoneme.getRandomGrapheme()
+            symbolString += chosenPhoneme.phonemeType
+            latestPhoneme = chosenPhoneme
+            # Increase length counter, so word knows when to stop selecting successors
+            if measureLengthInPhonemes:
+                # If length is counter in phonemes, increase length counter by 1, regardless of number of characters in grapheme
+                currentLength += 1
+            else:
+                # If length is counted in characters, set it equal to current length of string
+                currentLength = len(word)
+        else:
+            print("Error: '" + latestPhoneme.phonemeSymbol + "' has no successors (failed on phoneme " + str(nextPhonemeIndex + 1) + " of " + str(wordLength) + ")")
+    if word == "":
+        print("Error: Empty word was generated. (Symbol string: '" + symbolString + "')")
+    return word, symbolString
 
 def printGeneratedWords(generatedWords):    
     print("\nGenerated words:")
