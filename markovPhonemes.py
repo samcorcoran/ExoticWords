@@ -108,8 +108,11 @@ def generateAndPrintParagraph(totalLines, lineWidth, phonemeObjects):
             # Chance of sentence ending increases the more the sentence exceeds the minimum length
             currentSentenceLength += len(word)
             if currentSentenceLength > minimumSentenceLength:
+                # Sentence overflow is number of characters in sentence past minimum sentence length
                 sentenceOverflow = currentSentenceLength - minimumSentenceLength
-                if random.random() < (0.05 * sentenceOverflow):
+                # Sentence termination probability increases with sentenceOverflow
+                terminationProb = 0.02
+                if random.random() < (terminationProb * sentenceOverflow):
                     # If sentence ends here, add a full stop
                     word += "."
                     currentSentenceLength = 0
