@@ -144,15 +144,13 @@ def printSuccessorUsages(phonemeObjects):
 def fullyConnectNetwork(phonemeObjects):
     debugMode = False
     print("Fully connecting set of (" + str(len(phonemeObjects)) + ") phoneme objects...")
-    for key in phonemeObjects.keys():
-        phonemeObj = phonemeObjects[key]
+    for phonemeKey, phonemeObj in phonemeObjects.items():
         # Give phonemeObj every other phonemeObject as a successor
-        for successorKey in phonemeObjects.keys():
-            nextSuccessor = phonemeObjects[successorKey]
+        for successorKey, successorObj in phonemeObjects.items():
             # Add this object as successor
-            if debugMode: print(phonemeObj.phonemeSymbol + " adding phoneme " + nextSuccessor.phonemeSymbol + " as successor.")
-            successorProbability = getNoiseAlteredBaseProb(nextSuccessor)
-            phonemeObj.addSuccessor(nextSuccessor, successorProbability)
+            if debugMode: print(phonemeObj.phonemeSymbol + " adding phoneme " + successorObj.phonemeSymbol + " as successor.")
+            successorProbability = getNoiseAlteredBaseProb(successorObj)
+            phonemeObj.addSuccessor(successorObj, successorProbability)
 
 # Randomly determines popularity of phoneme, allowing approx percentages of high and low probability phonemes to be controlled
 def determinePhonemeProbability():
