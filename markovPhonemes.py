@@ -125,7 +125,7 @@ def generateAndPrintParagraph(totalLines, lineWidth, phonemeObjects):
         # Add line to paragraph
         paragraph += currentLine
     # Print the paragraph
-    print("\nParagraph:")
+    print("\nGenerated paragraph:")
     print(paragraph)
 
 def printPhonemes(phonemeObjects, verbose):
@@ -354,7 +354,7 @@ generateWords(generatedWords, totalWords, phonemeObjects)
 printGeneratedWords(generatedWords)
 
 # Generate a paragraph of given line length and character width
-paragraphTotalLines = 10
+paragraphTotalLines = 5
 paragraphWidth = 65
 generateAndPrintParagraph(paragraphTotalLines, paragraphWidth, phonemeObjects)
 
