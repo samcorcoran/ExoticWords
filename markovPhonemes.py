@@ -335,6 +335,44 @@ def testSuccessorNormalisation(phoneme):
         keyCounter += 1
     if debugMode: print("Phoneme '" + phoneme.phonemeSymbol + "' cumulativeProb: " + str(cumulativeProb) + " (from " + str(keyCounter) + " successors)")
 
+def generateNormalisedDistributionList(totalIntervals, meanInterval, meanIntervalProb, falloff):
+    distribution = []
+    if totalIntervals > 0 and (falloff > 0 and falloff < 1):
+        # Fill list with correct number of zero-initialised intervals
+        distribution = [0] * totalIntervals
+        if meanIntervalProb <= 1:
+            distribution[meanInterval] = meanIntervalProb
+            latestValue = meanIntervalProb
+            cumulativeProb = meanIntervalProb
+            complete = False
+            offsetFromMeanInterval = 1
+            while not complete:
+                # Apply falloff to latest values
+                nextProb = latestValue * falloff
+                if (nextProb * 2) + cumulativeProb > 1:
+                    # Next step will deplete probability
+                    nextProb = (1 - cumulativeProb)/2
+                    complete = True
+                # Keep running total of probability values inserted so far
+                cumulativeProb += 2 * nextProb
+                latestValue = nextProb
+                # Place nextProbs in intervals
+                insertedValues = False
+                if meanInterval - offsetFromMeanInterval >= 0:
+                    distribution[meanInterval - offsetFromMeanInterval] = nextProb
+                    insertedValues = True
+                if meanInterval + offsetFromMeanInterval < totalIntervals:
+                    distribution[meanInterval + offsetFromMeanInterval] = nextProb
+                    insertedValues = True
+                if not insertedValues:
+                    # If offset was outside interval range on both ends of list then flag will be false
+                    complete = True
+                offsetFromMeanInterval += 1
+        else:
+            print("Error: Mean interval probability was specified to be greater than 1. Capping at 1.")
+            distribution[meanInterval] = 1
+    return distribution
+
 ## START OF PROGRAM ROUTINE ##
 print("Markov Phonemes!\n")
 
@@ -413,3 +451,6 @@ generateAndPrintParagraph(paragraphTotalLines, paragraphWidth, phonemeObjects)
 # Testing attenuateSuccessorsOnType() like-typed attentuation
 #testNormalDist(5000, 0, 1, 0.05, 0.1, True)
 
+# Testing generation of normalised discrete distributions
+#print(generateNormalisedDistributionList(10, 5, 0.5, 0.4))
+#print(sum(generateNormalisedDistributionList(10, 5, 0.5, 0.4)))
