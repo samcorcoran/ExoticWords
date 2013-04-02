@@ -216,6 +216,19 @@ def testNormalDist(iterations, minSample, maxSample, mean, standardDev, normalis
     print("\nDistribution (mu=" + str(mean) + ", sd=" + str(standardDev) + ", interval=[" + str(minSample) + "," + str(maxSample) + "]):")
     print(intervalCounter)
 
+# Given a dict of phonemes, each phoneme's successor probabilities are modifed based on the successor's phonemeType
+def attenuateSuccessorsOnType(phonemeObjects):
+    for key, phoneme in phonemeObjects.items():
+        # Each successor must have its probability review
+        for successorKey, successor in phoneme.successors.items():
+            # Modifier is initially neutral
+            modifier = 1
+            # Compare phoneme types
+            if phoneme.phonemeType == successor.phonemeType:
+                # Phonemes are same type; probability should be drastically reduced
+                modifier = sampleTruncatedNormalDist(0, 1, 0.05, 0.1)
+            phoneme.successorProbabilities[successorKey] *= modifier
+
 # Removes from each node's listed successors 
 def removeSameTypeConnections(phonemeObjects):
     print("Removing same-typed successions...")
@@ -355,7 +368,10 @@ fullyConnectNetwork(phonemeObjects)
 if debugMode: printPhonemes(phonemeObjects, True)
 
 # Remove connections between like-typed nodes
-removeSameTypeConnections(phonemeObjects)
+#removeSameTypeConnections(phonemeObjects)
+
+# Reduce probability for connections between like-typed nodes
+attenuateSuccessorsOnType(phonemeObjects)
 
 # Add empty-string phoneme as initiation point
 addEmptyInitiator(phonemeObjects)
@@ -386,6 +402,7 @@ paragraphWidth = 65
 generateAndPrintParagraph(paragraphTotalLines, paragraphWidth, phonemeObjects)
 
 # Test a distribution (iterations, min, max, mean, sd, normalisation)
+# Note: These are some tests previously performed and left here in case revisiting them is useful (saving on some typing)
 #testNormalDist(5000, 0, 1, 0.5, 0.1, True)
 #testNormalDist(5000, 0.5, 1, 0.8, 0.08, True)
 #testNormalDist(5000, 0, 0.1, 0.01, 0.05, True)
@@ -393,4 +410,6 @@ generateAndPrintParagraph(paragraphTotalLines, paragraphWidth, phonemeObjects)
 #testNormalDist(5000, 0, 7, 2, 2, True)
 #testNormalDist(5000, 3, 10, 4.5, 2, True)
 #testNormalDist(5000, 0, 2, 1, 0.25, True)
+# Testing attenuateSuccessorsOnType() like-typed attentuation
+#testNormalDist(5000, 0, 1, 0.05, 0.1, True)
 
