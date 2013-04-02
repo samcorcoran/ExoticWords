@@ -13,7 +13,7 @@ def createPhonemeObjects(phonemeObjects, newPhonemes, phonemeType):
     # Loop through phonemes, creating objects
     for phoneme in newPhonemes:
         # Create a phoneme object
-        baseProbability = determinePhonemeProbability()
+        baseProbability = determinePopularityProbability()
         # Positional probabilities apply modifiers that incline certain phonemes towards certain positional occurrences
         positionalProbabilities = []
         usePosProbs = True
@@ -152,23 +152,23 @@ def fullyConnectNetwork(phonemeObjects):
             successorProbability = getNoiseAlteredBaseProb(successorObj)
             phonemeObj.addSuccessor(successorObj, successorProbability)
 
-# Randomly determines popularity of phoneme, allowing approx percentages of high and low probability phonemes to be controlled
-def determinePhonemeProbability():
-    phonemeProbability = 0
+# Randomly determines popularity of item (e.g. a phoneme), allowing approx percentages of high and low probability items to be controlled
+def determinePopularityProbability():
+    probability = 0
     popularThreshold = 0.6
     regularThreshold = 0.3
     rand = random.random()
-    # Determine whether phoneme will be popular or regular
+    # Determine whether will be popular or regular
     if rand > popularThreshold:
         # popular, high probability
-        phonemeProbability = sampleTruncatedNormalDist(0.5, 1, 0.8, 0.08)
+        probability = sampleTruncatedNormalDist(0.5, 1, 0.8, 0.08)
     elif rand > regularThreshold:
         # regular, low probability
-        phonemeProbability = sampleTruncatedNormalDist(0, 0.1, 0.01, 0.05)
+        probability = sampleTruncatedNormalDist(0, 0.1, 0.01, 0.05)
     else:
         # very unlikely, almost zero-probability (to avoid some phonemes having no successors)
-        phonemeProbability = 0.00001
-    return phonemeProbability
+        probability = 0.00001
+    return probability
 
 # Returns a probability value generated from the given phoneme's baseProbability, modified by noise
 def getNoiseAlteredBaseProb(phoneme):
