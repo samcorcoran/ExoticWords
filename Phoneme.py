@@ -23,8 +23,8 @@ class Phoneme:
     # Positional probability distribution
     #  a proportion-through-word converts to a list indices to retrieve interpolation between consecutive listed probabilities
     __positionalProbabilities = []
-    # Possible Graphemes - written representations of phoneme
-    __graphemes = []
+    # Possible Graphemes - a list of tuples consisting of: written representations of phoneme and their associated likelihoods
+    __graphemeTuples = []
     
     def __init__(self, newSymbol, newType, newExample, newProbability, newPosProbs, newGraphemes):
         self.phonemeSymbol = newSymbol
@@ -36,7 +36,7 @@ class Phoneme:
         self.successorUsage = dict()
         self.predecessors = dict()
         self.positionalProbabilities = newPosProbs
-        self.graphemes = newGraphemes
+        self.graphemeTuples = newGraphemes
         
     def getPhonemeType(self):
         return __self.phonemeType
@@ -133,11 +133,19 @@ class Phoneme:
         else:
             # No positional probabilities, so return no-modifier of '1'
             return 1
-        
+
+    def chooseGrapheme(self):
+        debugMode = False
+        graphemeIndex = random.randint(0, len(self.graphemeTuples)-1)
+        chosenGrapheme = self.graphemeTuples[graphemeIndex][0]
+        if debugMode: print("Grapheme '" + chosenGrapheme + "' selected.")
+        return chosenGrapheme
+
     def getRandomGrapheme(self):
         debugMode = False
-        chosenGrapheme = random.choice(self.graphemes)
-        if debugMode: print("Grapheme '" + chosenGrapheme + "' selected")
+        chosenTuple = random.choice(self.graphemeTuples)
+        chosenGrapheme = chosenTuple[0]
+        if debugMode: print("Grapheme '" + chosenGrapheme + "' selected.")
         return chosenGrapheme
 
     def reportPhonemeInfo(self, verbose):

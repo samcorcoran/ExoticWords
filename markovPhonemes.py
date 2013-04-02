@@ -31,7 +31,7 @@ def createPhonemeObjects(phonemeObjects, newPhonemes, phonemeType):
                 # Phoneme will be given an even likelihood to occur throughout a word
                 positionalProbabilities = []
             
-        graphemes = [phoneme]
+        graphemes = [(phoneme, determinePopularityProbability()), (phoneme, determinePopularityProbability()), (phoneme, determinePopularityProbability())]
         nextPhoneme = Phoneme.Phoneme(phoneme, phonemeType, 'example '+phoneme, baseProbability, positionalProbabilities, graphemes)
         if debugMode: print("nextPhoneme: " + nextPhoneme.phonemeSymbol)
         phonemeObjects[nextPhoneme.phonemeSymbol] = nextPhoneme
@@ -63,7 +63,7 @@ def generateWord(desiredWordLength, measureLengthInPhonemes, phonemeObjects):
         if latestPhoneme.successors:
             if debugMode: print("Successors: " + ", ".join(latestPhoneme.successors))
             chosenPhoneme = latestPhoneme.chooseSuccessor(currentLength+1, desiredWordLength)
-            word += chosenPhoneme.getRandomGrapheme()
+            word += chosenPhoneme.chooseGrapheme()
             symbolString += chosenPhoneme.phonemeType
             latestPhoneme = chosenPhoneme
             # Increase length counter, so word knows when to stop selecting successors
@@ -275,7 +275,7 @@ def addEmptyInitiator(successorObjects):
     emptyExample = "not applicable"
     baseProbability = 0
     positionalProbability = 1
-    emptyGraphemes = [""]
+    emptyGraphemes = [("", determinePopularityProbability())]
     emptyInitiator = Phoneme.Phoneme(emptySymbol, emptyType, emptyExample, baseProbability, positionalProbability, emptyGraphemes)
     # Provide all phonemes as successors of the initiator with equal probability
     baseProbability = 1.0
@@ -467,4 +467,4 @@ generateAndPrintParagraph(paragraphTotalLines, paragraphWidth, phonemeObjects)
 # Testing generation of discrete distributions lists
 # Params: totalIntervals, meanInterval, meanIntervalProb, falloff, isNormalised
 # Test for 'early phoneme' positional probabilities
-testHistogramFrequencyGeneration(10, 0, 1, 0.5, False, 3)
+#testHistogramFrequencyGeneration(10, 0, 1, 0.5, False, 3)
