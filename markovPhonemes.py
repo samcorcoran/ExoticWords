@@ -22,10 +22,10 @@ def createPhonemeObjects(phonemeObjects, newPhonemes, phonemeType):
             if positionalRand > 0.7:
                 # Phoneme will be an 'late' one, appearing more frequently at the end of a word
                 print("Phoneme '" + phoneme + "' is late")
-                positionalProbabilities = [0, 0.1, 0.2, 0.4, 1.0]
+                positionalProbabilities = generateHistogramFrequencies(10, 9, 1, 0.5, False)
             elif positionalRand < 0.3:
                 # Phoneme will be an 'early' one, appearing more frequently at the beginning of a word
-                positionalProbabilities = [1.0, 0.5, 0.1, 0, 0]
+                positionalProbabilities = generateHistogramFrequencies(10, 0, 1, 0.5, False)
                 print("Phoneme '" + phoneme + "' is early")
             else:
                 # Phoneme will be given an even likelihood to occur throughout a word
@@ -335,7 +335,8 @@ def testSuccessorNormalisation(phoneme):
         keyCounter += 1
     if debugMode: print("Phoneme '" + phoneme.phonemeSymbol + "' cumulativeProb: " + str(cumulativeProb) + " (from " + str(keyCounter) + " successors)")
 
-def generateNormalisedDistributionList(totalIntervals, meanInterval, meanIntervalProb, falloff):
+# Generates a list of given intervals, describing a symmetric distribution of values
+def generateHistogramFrequencies(totalIntervals, meanInterval, meanIntervalProb, falloff, isNormalised):
     distribution = []
     if totalIntervals > 0 and (falloff > 0 and falloff < 1):
         # Fill list with correct number of zero-initialised intervals
@@ -349,10 +350,12 @@ def generateNormalisedDistributionList(totalIntervals, meanInterval, meanInterva
             while not complete:
                 # Apply falloff to latest values
                 nextProb = latestValue * falloff
-                if (nextProb * 2) + cumulativeProb > 1:
-                    # Next step will deplete probability
-                    nextProb = (1 - cumulativeProb)/2
-                    complete = True
+                # If normalisation specified then cumulative prob stops at one and process ends
+                if isNormalised:
+                    if (nextProb * 2) + cumulativeProb > 1:
+                        # Next step will deplete probability
+                        nextProb = (1 - cumulativeProb)/2
+                        complete = True
                 # Keep running total of probability values inserted so far
                 cumulativeProb += 2 * nextProb
                 latestValue = nextProb
@@ -373,6 +376,16 @@ def generateNormalisedDistributionList(totalIntervals, meanInterval, meanInterva
             distribution[meanInterval] = 1
     return distribution
 
+# Uses parameters to generate a distribution list, and prints out the rounded values
+def testHistogramFrequencyGeneration(totalIntervals, meanInterval, meanIntervalProb, falloff, isNormalised, decimalPlaces):
+    distribution = generateHistogramFrequencies(totalIntervals, meanInterval, meanIntervalProb, falloff, isNormalised)
+    cumulativeProbability = sum(distribution)
+    for i in range(len(distribution)):
+        # Convert values to strings to retain their rounded representation
+        distribution[i] = str(round(distribution[i], decimalPlaces))
+    print("Test distribution (cumProb=" + str(round(cumulativeProbability, decimalPlaces)) + "):")
+    print(distribution)
+        
 ## START OF PROGRAM ROUTINE ##
 print("Markov Phonemes!\n")
 
@@ -451,6 +464,7 @@ generateAndPrintParagraph(paragraphTotalLines, paragraphWidth, phonemeObjects)
 # Testing attenuateSuccessorsOnType() like-typed attentuation
 #testNormalDist(5000, 0, 1, 0.05, 0.1, True)
 
-# Testing generation of normalised discrete distributions
-#print(generateNormalisedDistributionList(10, 5, 0.5, 0.4))
-#print(sum(generateNormalisedDistributionList(10, 5, 0.5, 0.4)))
+# Testing generation of discrete distributions lists
+# Params: totalIntervals, meanInterval, meanIntervalProb, falloff, isNormalised
+# Test for 'early phoneme' positional probabilities
+testHistogramFrequencyGeneration(10, 0, 1, 0.5, False, 3)
