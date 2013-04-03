@@ -30,7 +30,7 @@ def createPhonemeObjects(phonemeObjects, newPhonemes, phonemeType):
             else:
                 # Phoneme will be given an even likelihood to occur throughout a word
                 positionalProbabilities = []
-            
+
         graphemes = [(phoneme, determinePopularityProbability()), (phoneme, determinePopularityProbability()), (phoneme, determinePopularityProbability())]
         nextPhoneme = Phoneme.Phoneme(phoneme, phonemeType, 'example '+phoneme, baseProbability, positionalProbabilities, graphemes)
         if debugMode: print("nextPhoneme: " + nextPhoneme.phonemeSymbol)
@@ -59,7 +59,7 @@ def generateWord(desiredWordLength, measureLengthInPhonemes, phonemeObjects):
     symbolString = ""
     # The empty-string phoneme is used to initiate process
     latestPhoneme = phonemeObjects[""]
-    while currentLength < desiredWordLength:       
+    while currentLength < desiredWordLength:
         if latestPhoneme.successors:
             if debugMode: print("Successors: " + ", ".join(latestPhoneme.successors))
             chosenPhoneme = latestPhoneme.chooseSuccessor(currentLength+1, desiredWordLength)
@@ -79,7 +79,7 @@ def generateWord(desiredWordLength, measureLengthInPhonemes, phonemeObjects):
         print("Error: Empty word was generated. (Symbol string: '" + symbolString + "')")
     return word, symbolString
 
-def printGeneratedWords(generatedWords):    
+def printGeneratedWords(generatedWords):
     print("\nGenerated words:")
     for nextWord in generatedWords:
         print("\t" + str.capitalize(nextWord))
@@ -139,7 +139,7 @@ def printSuccessorUsages(phonemeObjects):
     print("\nPhoneme usage information:\n")
     for phonemeKey, phoneme in phonemeObjects.items():
         phoneme.reportPhonemeSuccessorUsage()
-        
+
 # Adds all phonemes as successors to all other phonemes with a probability of 1
 def fullyConnectNetwork(phonemeObjects):
     debugMode = False
@@ -199,7 +199,7 @@ def testNormalDist(iterations, minSample, maxSample, mean, standardDev, normalis
     # Interval will be divided into smaller sub-intervals
     totalDiscreteIntervals = 10
     discreteIntervalWidth = float(sampleIntervalWidth) / totalDiscreteIntervals
-    # Each sample that falls within a certain interval 
+    # Each sample that falls within a certain interval
     intervalCounter = [0] * totalDiscreteIntervals
     for i in range(iterations):
         sample = sampleTruncatedNormalDist(minSample, maxSample, mean, standardDev)
@@ -229,7 +229,7 @@ def attenuateSuccessorsOnType(phonemeObjects):
                 modifier = sampleTruncatedNormalDist(0, 1, 0.05, 0.1)
             phoneme.successorProbabilities[successorKey] *= modifier
 
-# Removes from each node's listed successors 
+# Removes from each node's listed successors
 def removeSameTypeConnections(phonemeObjects):
     print("Removing same-typed successions...")
     debugMode = False
@@ -309,7 +309,7 @@ def addSequenceOfSuccessors(predecessorPhonemeObjects, successorProbabilities, s
 
 def normaliseSuccessorProbabilities(phonemeObjects):
     debugMode = False
-    # Perform function for each node...    
+    # Perform function for each node...
     for phonemeKey in phonemeObjects:
         # Calculate sum of phoneme's successorProbabilities
         summedProbabilities = 0
@@ -389,7 +389,7 @@ def testHistogramFrequencyGeneration(totalIntervals, meanInterval, meanIntervalP
 # Prompts each phoneme to print its contents, formatted in pre-defined way that can be pasted into a file and later read back out
 def printPhonemesInStoreFormat(phonemeObjects):
     for phonemeKey, phonemeObj in phonemeObjects.items():
-        phonemeObj.printPhonemeInStoreFormat()  
+        phonemeObj.printPhonemeInStoreFormat()
 
 # Loads file at filepath, parses for phonemes info and adds Phoneme objects to ongoing dictionary
 def createPhonemesFromFile(phonemeObjects, filePath):
