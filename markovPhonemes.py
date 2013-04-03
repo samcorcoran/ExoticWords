@@ -385,7 +385,12 @@ def testHistogramFrequencyGeneration(totalIntervals, meanInterval, meanIntervalP
         distribution[i] = str(round(distribution[i], decimalPlaces))
     print("Test distribution (cumProb=" + str(round(cumulativeProbability, decimalPlaces)) + "):")
     print(distribution)
-        
+
+# Prompts each phoneme to print its contents, formatted in pre-defined way that can be pasted into a file and later read back out
+def printPhonemesInStoreFormat(phonemeObjects):
+    for phonemeKey, phonemeObj in phonemeObjects.items():
+        phonemeObj.printPhonemeInStoreFormat()  
+
 ## START OF PROGRAM ROUTINE ##
 print("Markov Phonemes!\n")
 
@@ -404,7 +409,7 @@ debugMode = False
 phonemeObjects = dict()
 
 # Create vowel phoneme objects
-createPhonemeObjects(phonemeObjects, vowelPhonemes, "v")
+#createPhonemeObjects(phonemeObjects, vowelPhonemes, "v")
 
 # Create consonant phoneme objects
 createPhonemeObjects(phonemeObjects, consonantPhonemes, "c")
@@ -468,3 +473,5 @@ generateAndPrintParagraph(paragraphTotalLines, paragraphWidth, phonemeObjects)
 # Params: totalIntervals, meanInterval, meanIntervalProb, falloff, isNormalised
 # Test for 'early phoneme' positional probabilities
 #testHistogramFrequencyGeneration(10, 0, 1, 0.5, False, 3)
+
+printPhonemesInStoreFormat(phonemeObjects)

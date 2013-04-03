@@ -189,6 +189,33 @@ class Phoneme:
             print("\tDeviation: " + str(round(sum(deviation)/len(deviation), 2)))
         else:
             print("\tNo successors.")
-        
 
+    # Print phoneme information in format of stored phonemes
+    def printPhonemeInStoreFormat(self):
+        # Phoneme information will be enclosed in start/end tags
+        openTag = "<START PHONEME>"
+        closeTag = "<END PHONEME>"
+        print(openTag)
+        
+        #Symbol
+        phonemeSymbol = self.phonemeSymbol
+        print("phonemeSymbol:"+phonemeSymbol)
+        
+        #Type
+        phonemeType = self.phonemeType
+        print("phonemeType:"+phonemeType)
+        
+        #Example
+        phonemeExample = self.phonemeExample
+        print("phonemeExample:"+phonemeExample)
+        
+        #Graphemes
+        graphemeList = []
+        for i in range(len(self.graphemeTuples)):
+            nextGrapheme = self.graphemeTuples[i]
+            graphemeList.append(self.graphemeTuples[i][0])
+        graphemes = ",".join(graphemeList)
+        print("graphemes:"+graphemes)
+        
+        print(closeTag)
         
