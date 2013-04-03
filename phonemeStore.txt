@@ -1,0 +1,296 @@
+# Vowel Phonemes
+<START PHONEME>
+phonemeSymbol:a
+phonemeType:v
+phonemeExample:example a
+graphemes:a,a,a
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:oo
+phonemeType:v
+phonemeExample:example oo
+graphemes:oo,oo,oo
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:
+phonemeType:initiator
+phonemeExample:not applicable
+graphemes:
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:ear
+phonemeType:v
+phonemeExample:example ear
+graphemes:ear,ear,ear
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:ae
+phonemeType:v
+phonemeExample:example ae
+graphemes:ae,ae,ae
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:oi
+phonemeType:v
+phonemeExample:example oi
+graphemes:oi,oi,oi
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:i
+phonemeType:v
+phonemeExample:example i
+graphemes:i,i,i
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:oe
+phonemeType:v
+phonemeExample:example oe
+graphemes:oe,oe,oe
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:ow
+phonemeType:v
+phonemeExample:example ow
+graphemes:ow,ow,ow
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:o
+phonemeType:v
+phonemeExample:example o
+graphemes:o,o,o
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:ur
+phonemeType:v
+phonemeExample:example ur
+graphemes:ur,ur,ur
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:ee
+phonemeType:v
+phonemeExample:example ee
+graphemes:ee,ee,ee
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:ar
+phonemeType:v
+phonemeExample:example ar
+graphemes:ar,ar,ar
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:u
+phonemeType:v
+phonemeExample:example u
+graphemes:u,u,u
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:ue
+phonemeType:v
+phonemeExample:example ue
+graphemes:ue,ue,ue
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:e
+phonemeType:v
+phonemeExample:example e
+graphemes:e,e,e
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:au
+phonemeType:v
+phonemeExample:example au
+graphemes:au,au,au
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:air
+phonemeType:v
+phonemeExample:example air
+graphemes:air,air,air
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:ie
+phonemeType:v
+phonemeExample:example ie
+graphemes:ie,ie,ie
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:or
+phonemeType:v
+phonemeExample:example or
+graphemes:or,or,or
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:er
+phonemeType:v
+phonemeExample:example er
+graphemes:er,er,er
+<END PHONEME>
+# Consonant Phonemes
+<START PHONEME>
+phonemeSymbol:
+phonemeType:initiator
+phonemeExample:not applicable
+graphemes:
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:ch
+phonemeType:c
+phonemeExample:example ch
+graphemes:ch,ch,ch
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:zh
+phonemeType:c
+phonemeExample:example zh
+graphemes:zh,zh,zh
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:ng
+phonemeType:c
+phonemeExample:example ng
+graphemes:ng,ng,ng
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:sh
+phonemeType:c
+phonemeExample:example sh
+graphemes:sh,sh,sh
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:th
+phonemeType:c
+phonemeExample:example th
+graphemes:th,th,th
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:wh
+phonemeType:c
+phonemeExample:example wh
+graphemes:wh,wh,wh
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:c
+phonemeType:c
+phonemeExample:example c
+graphemes:c,c,c
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:b
+phonemeType:c
+phonemeExample:example b
+graphemes:b,b,b
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:d
+phonemeType:c
+phonemeExample:example d
+graphemes:d,d,d
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:g
+phonemeType:c
+phonemeExample:example g
+graphemes:g,g,g
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:f
+phonemeType:c
+phonemeExample:example f
+graphemes:f,f,f
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:h
+phonemeType:c
+phonemeExample:example h
+graphemes:h,h,h
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:k
+phonemeType:c
+phonemeExample:example k
+graphemes:k,k,k
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:j
+phonemeType:c
+phonemeExample:example j
+graphemes:j,j,j
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:m
+phonemeType:c
+phonemeExample:example m
+graphemes:m,m,m
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:l
+phonemeType:c
+phonemeExample:example l
+graphemes:l,l,l
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:n
+phonemeType:c
+phonemeExample:example n
+graphemes:n,n,n
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:q
+phonemeType:c
+phonemeExample:example q
+graphemes:q,q,q
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:p
+phonemeType:c
+phonemeExample:example p
+graphemes:p,p,p
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:s
+phonemeType:c
+phonemeExample:example s
+graphemes:s,s,s
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:r
+phonemeType:c
+phonemeExample:example r
+graphemes:r,r,r
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:t
+phonemeType:c
+phonemeExample:example t
+graphemes:t,t,t
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:w
+phonemeType:c
+phonemeExample:example w
+graphemes:w,w,w
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:v
+phonemeType:c
+phonemeExample:example v
+graphemes:v,v,v
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:y
+phonemeType:c
+phonemeExample:example y
+graphemes:y,y,y
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:x
+phonemeType:c
+phonemeExample:example x
+graphemes:x,x,x
+<END PHONEME>
+<START PHONEME>
+phonemeSymbol:z
+phonemeType:c
+phonemeExample:example z
+graphemes:z,z,z
+<END PHONEME>
