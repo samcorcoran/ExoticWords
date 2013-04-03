@@ -391,6 +391,84 @@ def printPhonemesInStoreFormat(phonemeObjects):
     for phonemeKey, phonemeObj in phonemeObjects.items():
         phonemeObj.printPhonemeInStoreFormat()  
 
+# Loads file at filepath, parses for phonemes info and adds Phoneme objects to ongoing dictionary
+def createPhonemesFromFile(phonemeObjects, filePath):
+    print("Loading phonemes from file (" + filePath + "):")
+    file = open(filePath, "r")
+    # Flag indicates whether info for a phoneme is currently being parsed
+    processingPhoneme = False
+    # During parsing phoneme info must be held
+    currentSymbol, currentType, currentExample, currentGraphemes = "", "", "", ""
+    #Iterate through lines of file
+    for line in file.readlines():
+        # Remove and trailing whitespace
+        line = string.strip(line)
+        if processingPhoneme:
+            # Check if phoneme ends on this line
+            if line == "<END PHONEME>":
+                # Create and add Phoneme object if enough information was collected
+                if not (currentSymbol == "" or currentType == "" or currentExample == "" or currentGraphemes == ""):
+                    # Phoneme information is complete; creation can proceed
+                    graphemeParts = string.split(currentGraphemes, ',')
+                    graphemes = []
+                    for grapheme in graphemeParts:
+                        # Convert each comma separated grapheme into a tuple with a probability
+                        graphemes.append((grapheme, 1))
+                    # Create grapheme object
+                    newPhoneme = Phoneme.Phoneme(currentSymbol, currentType, currentExample, 1, [], graphemes)
+                    # Add grapheme object to dict
+                    phonemeObjects[newPhoneme.phonemeSymbol] = newPhoneme
+                # Even if no phoneme is created, end tag ends processing of this phoneme
+                processingPhoneme = False
+            elif line == "<START PHONEME>":
+                # This should not have been encountered as no end tag as yet been encountered
+                print("Error: Encountered second <START PHONEME> tag before end tag was found.")
+                # Re-initialise collected info, ready for new collection
+                currentSymbol, currentType, currentExample, currentGraphemes = "", "", "", ""
+            else:
+                # Attempt to collect phoneme information from this line, splitting on its first colon (enforced by maxSplits)
+                parts = string.split(line, ':' , 1)
+                if parts[0] == "phonemeSymbol":
+                    currentSymbol = parts[1]
+                elif parts[0] == "phonemeType":
+                    currentType = parts[1]
+                elif parts[0] == "phonemeExample":
+                    currentExample = parts[1]
+                elif parts[0] == "graphemes":
+                    currentGraphemes = parts[1]
+        else:
+            # Check if a phoneme begins on this line
+            if line == "<START PHONEME>":
+                processingPhoneme = True
+            elif line == "<END PHONEME>":
+                # This should not have been encountered as no start tag as yet been encountered
+                print("Error: Encountered <END PHONEME> tag before start tag was found.")
+
+# Assigns each phoneme a new baseProbability, 
+def grantPhonemesRandomBaseProbabilities(phonemeObjects):
+    for phonemeKey in phonemeObjects:
+        phonemeObjects[phonemeKey].baseProbability = determinePopularityProbability()
+
+# Assigns each phoneme a random list of positional probabilities
+def grantPhonemesRandomPositionalProbabilities(phonemeObjects):
+    for phonemeKey in phonemeObjects:
+        # Positional probabilities apply modifiers that incline certain phonemes towards certain positional occurrences
+        positionalProbabilities = []
+        positionalRand = random.random()
+        if positionalRand > 0.7:
+            # Phoneme will be an 'late' one, appearing more frequently at the end of a word
+            print("Phoneme '" + phonemeObjects[phonemeKey].phonemeSymbol + "' is late")
+            positionalProbabilities = generateHistogramFrequencies(10, 9, 1, 0.5, False)
+        elif positionalRand < 0.3:
+            # Phoneme will be an 'early' one, appearing more frequently at the beginning of a word
+            positionalProbabilities = generateHistogramFrequencies(10, 0, 1, 0.5, False)
+            print("Phoneme '" + phonemeObjects[phonemeKey].phonemeSymbol + "' is early")
+        else:
+            # Phoneme will be given an even likelihood to occur throughout a word
+            positionalProbabilities = []
+        # Assign the positional probabilities to the phoneme object            
+        phonemeObjects[phonemeKey].positionalProbabilities = positionalProbabilities
+
 ## START OF PROGRAM ROUTINE ##
 print("Markov Phonemes!\n")
 
@@ -412,7 +490,16 @@ phonemeObjects = dict()
 #createPhonemeObjects(phonemeObjects, vowelPhonemes, "v")
 
 # Create consonant phoneme objects
-createPhonemeObjects(phonemeObjects, consonantPhonemes, "c")
+#createPhonemeObjects(phonemeObjects, consonantPhonemes, "c")
+
+# Create phoneme objects specified in file
+createPhonemesFromFile(phonemeObjects, "phonemeStore.txt")
+
+# Assign random base probabilities
+grantPhonemesRandomBaseProbabilities(phonemeObjects)
+
+# Assigns random positional probabilities
+grantPhonemesRandomPositionalProbabilities(phonemeObjects)
 
 # Test the contents of the phoneme objects
 if debugMode: printPhonemes(phonemeObjects, False)
@@ -438,7 +525,7 @@ pruneNetwork(phonemeObjects)
 # Normalise successor probabilities for all nodes
 normaliseSuccessorProbabilities(phonemeObjects)
 
-# Print information on each phoneme in the network, including 
+# Print information on each phoneme in the network, including
 #printPhonemes(phonemeObjects, True)
 
 # Generate words from network
@@ -474,4 +561,4 @@ generateAndPrintParagraph(paragraphTotalLines, paragraphWidth, phonemeObjects)
 # Test for 'early phoneme' positional probabilities
 #testHistogramFrequencyGeneration(10, 0, 1, 0.5, False, 3)
 
-printPhonemesInStoreFormat(phonemeObjects)
+#printPhonemesInStoreFormat(phonemeObjects)
