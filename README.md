@@ -40,6 +40,8 @@ For those permissable phonemes, the earliest stages of this project have taken t
 
 Reference: 
 http://en.wikipedia.org/wiki/Phonemic_orthography
+http://en.wikipedia.org/wiki/Phoneme
+http://en.wikipedia.org/wiki/Grapheme
 
 <h2>Syllable Representation</h2>
 
