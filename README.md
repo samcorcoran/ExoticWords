@@ -5,15 +5,15 @@ An exotic word generator.
 
 This project seeks to play with phonologies of different cultures, with the intention of creating a configurable generator that reflects the differing use of phonemes amongst languages/cultures.
 
-Initial Project Outline
+<h2>Initial Project Outline</h2>
 
 
 
-Expanded Project Outline
+<h2>Expanded Project Outline</h2>
 
 
 
-=Transcription=
+<h2>Transcription</h2>
 
 The problem of transcription is firstly that many languages' written form (their 'orthographies'), are 'non-phonemic' (highly so in the case of English). While the shape and sound of a language is defined by its use of certain sets of phonemes, a language may not represent those phonemes each with written symbols. 'Shallow orthographies' use a near one-to-one mapping of phonemes to graphemes (a perfect mapping is a 'bijection'). 'Deep orthographies' are systems where the set of written forms diverge greatly from the set of phonemes used.
 
@@ -28,9 +28,9 @@ For those permissable phonemes, the earliest stages of this project have taken t
 Reference: 
 http://en.wikipedia.org/wiki/Phonemic_orthography
 
-Syllable Representation
+<h2>Syllable Representation</h2>
 
-Morphemes, Words and Sentences
+<h2>Morphemes, Words and Sentences</h2>
 
 
 References: 
