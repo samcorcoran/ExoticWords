@@ -36,7 +36,7 @@ http://en.wikipedia.org/wiki/Phonemic_orthography
 References: 
 http://en.wikipedia.org/wiki/Morpheme
 
-Information sources to investigate:
+<h2>Information sources to investigate:</h2>
 
 http://archives.conlang.info/pei/pirjhin/zurbhaunsaun.html
 
