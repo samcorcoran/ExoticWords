@@ -13,7 +13,7 @@ Expanded Project Outline
 
 
 
-Transcription
+=Transcription=
 
 The problem of transcription is firstly that many languages' written form (their 'orthographies'), are 'non-phonemic' (highly so in the case of English). While the shape and sound of a language is defined by its use of certain sets of phonemes, a language may not represent those phonemes each with written symbols. 'Shallow orthographies' use a near one-to-one mapping of phonemes to graphemes (a perfect mapping is a 'bijection'). 'Deep orthographies' are systems where the set of written forms diverge greatly from the set of phonemes used.
 
