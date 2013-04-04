@@ -7,7 +7,7 @@ This project seeks to play with phonologies of different languages, with the int
 
 <h2>Initial Project Outline</h2>
 
-All humans share the contraints of the human mouth's possible shapes, which restricts total set of possible phones (spoken sounds). Languages are markedly different in the phonemes (meaningful combinations of phones) they employ, the combinations they are used permissably used in, the relative frequency of those various combinations and the graphemes (written forms) with which those phones are transcribed.
+All humans share the contraints of the mouth's possible shapes, restricting the total set of possible phones (spoken sounds). Languages are markedly different in the phonemes (meaningful combinations of phones) they employ, the combinations they are used permissably used in, the relative frequency of those various combinations and the graphemes (written forms) with which those phones are transcribed.
 
 The first attempt of the project was simply to generate strings of letters which looks like they could feasibly be a person's name in an unknown foreign language; the sort of procedural content which might be useful for characters in a game world.
 
