@@ -30,8 +30,24 @@ http://en.wikipedia.org/wiki/Phonemic_orthography
 
 <h2>Syllable Representation</h2>
 
-<h2>Morphemes, Words and Sentences</h2>
+<h2>Morphemes and Sentences</h2>
 
+Generation of single words at a time may present a reader with some hallmarks of a novel language, but a language's distinctiveness also arises from its grammar: the patterns of word arrangement.
+
+The scope of the Exotic Words project is not intended to cover Natural Language Processing so broadly that entire grammars will be recreated. That said, a mid-way addition to the project was simple functionality for generating mock 'paragraphs' of words.
+
+The most basic form mimicks sentence structure by generating words of random lengths with a probability distribution that looks vaguely akin to that seen in european languages: many short words with occasional longer words.
+
+A slightly more complex, but no less forced, approach may be used to provide systemic control of word length choices. A sentence should not be constructed only of long words, so a system to determine how long the next word should be, dependent on length of the most recent, is necessary. This may take on a markov chains quality of its own, a few basic 'word types' such as "long words", "short words" and "short connector words" (these are just crude possible examples). Each of these types would allow for small amounts of word length variation in themselves, but would all the enforcing of positional relationships between those types. 
+
+Once syllable structures exist within the project, word length may be defined in syllabic terms (mono-syllabic, bi-syllabic etc).
+
+'Morphemes' are the smallest grammatical units in a language, separated into two main categories:
+* Free Morphemes: free-standing, independantly functioning words
+* Bound Morphemes: mostly prefixes and suffixes
+The incorporation of morphemes into sentence generation, in order to permit the explicit generation of bound-morphemes, may be implemented as a means to instate certain repeating letter sequences which are common in languages, such as the common prefix 'un-' in English.
+
+Sentences, early in the project, were given a hard minimum length but were encouraged to vary slightly past this limit, with accompanying punctuation placed, therefore, largely at random. A small amount more variation in the approach may yield more interesting paragraph results, but this is not a focus of the project.
 
 References: 
 http://en.wikipedia.org/wiki/Morpheme
