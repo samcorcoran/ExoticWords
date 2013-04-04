@@ -3,11 +3,17 @@ exoticWords
 
 An exotic word generator.
 
-This project seeks to play with phonologies of different cultures, with the intention of creating a configurable generator that reflects the differing use of phonemes amongst languages/cultures.
+This project seeks to play with phonologies of different languages, with the intention of creating a configurable generator that reflects the differing use of phonemes amongst languages/cultures.
 
 <h2>Initial Project Outline</h2>
 
+All humans share the contraints of the human mouth's possible shapes, which restricts total set of possible phones (spoken sounds). Languages are markedly different in the phonemes (meaningful combinations of phones) they employ, the combinations they are used permissably used in, the relative frequency of those various combinations and the graphemes (written forms) with which those phones are transcribed.
 
+The first attempt of the project was simply to generate strings of letters which looks like they could feasibly be a person's name in an unknown foreign language; the sort of procedural content which might be useful for characters in a game world.
+
+At first I was playing with a very simply programmatical generation of words by randomly selecting letters, having added a basic rule that vowels should almost always follow consonants, and visa versa. Generated results were interesting, but improved dramatically after a friend suggested the use of phonemes instead of stand-alone letters. I grabbed a simple list of transcribed phonemes so that now selections would include possiblities such as 'ou' and 'ie' to go along with single letters.
+
+This project has been, since its initiation, a 'bottom-up' progression through linguistic features, attempting to improve generation quality with each new layer of complexity.
 
 <h2>Expanded Project Outline</h2>
 
