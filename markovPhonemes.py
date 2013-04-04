@@ -493,7 +493,7 @@ phonemeObjects = dict()
 #createPhonemeObjects(phonemeObjects, consonantPhonemes, "c")
 
 # Create phoneme objects specified in file
-createPhonemesFromFile(phonemeObjects, "phonemeStore.txt")
+createPhonemesFromFile(phonemeObjects, "phonemeStoreBasic.txt")
 
 # Assign random base probabilities
 grantPhonemesRandomBaseProbabilities(phonemeObjects)
