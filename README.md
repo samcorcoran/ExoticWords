@@ -115,3 +115,6 @@ http://project.uet.itgo.com/markov_model.htm
 
 Mention of positional probability:
 http://iphodblog.blogspot.co.uk/ 
+
+Fantastic phonotactic resource:
+http://phonotactics.anu.edu.au/
