@@ -7,28 +7,13 @@ import utils
 # A language object holds a single generation configuration and produces themed words
 class Language:
 
-    # Phoneme Lists
-    __vowelPhonemes = ['a', 'e', 'i', 'o', 'u', 'ae', 'ee', 'ie', 'oe', 'ue', 'oo', 'ar', 'ur', 'or', 'au', 'er', 'ow', 'oi', 'air', 'ear']
-    # Note: This contains graphemes which are not distinct phonemes, such as "c" which shares the phoneme "k"
-    __consonantPhonemes = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z', 'wh', 'th', 'ch', 'sh', 'zh', 'ng']
-    __phonemeObjects = dict()
-
     # Language initialises by setting configuration
     def __init__(self):
         print("Initialising Language...")
         # All phoneme objects must be held together in a list
         self.phonemeObjects = dict()
-        # Create vowel phoneme objects
-        #createPhonemeObjects(phonemeObjects, vowelPhonemes, "v")
-
-        # Create consonant phoneme objects
-        #createPhonemeObjects(phonemeObjects, consonantPhonemes, "c")
-
-        # Moderate relations between phoneme objects
-
-        # Create phoneme objects specified in file
-        #Language.createPhonemesFromFile(phonemeObjects, "phonemeStoreBasic.txt")
-
+        self.setupLanguage(debugMode = False)
+        
     def setupLanguage(self, debugMode):      
         # Create phoneme objects from file representations
         self.createPhonemesFromFile("phonemeStoreBasic.txt")
@@ -64,37 +49,7 @@ class Language:
         self.normaliseSuccessorProbabilities()
 
         # Print information on each phoneme in the network, including
-        #printPhonemes(phonemeObjects, True)
-
-    def createPhonemeObjects(phonemeObjects, newPhonemes, phonemeType):
-        debugMode = False
-        # Create Phoneme objects from the incoming list
-        print("Creating (" + str(len(newPhonemes)) + ") phoneme (" + phonemeType + ") objects...")
-        # Loop through phonemes, creating objects
-        for phoneme in newPhonemes:
-            # Create a phoneme object
-            baseProbability = determinePopularityProbability()
-            # Positional probabilities apply modifiers that incline certain phonemes towards certain positional occurrences
-            positionalProbabilities = []
-            usePosProbs = True
-            if usePosProbs:
-                positionalRand = random.random()
-                if positionalRand > 0.7:
-                    # Phoneme will be an 'late' one, appearing more frequently at the end of a word
-                    print("Phoneme '" + phoneme + "' is late")
-                    positionalProbabilities = generateHistogramFrequencies(10, 9, 1, 0.5, False)
-                elif positionalRand < 0.3:
-                    # Phoneme will be an 'early' one, appearing more frequently at the beginning of a word
-                    positionalProbabilities = generateHistogramFrequencies(10, 0, 1, 0.5, False)
-                    print("Phoneme '" + phoneme + "' is early")
-                else:
-                    # Phoneme will be given an even likelihood to occur throughout a word
-                    positionalProbabilities = []
-
-            graphemes = [(phoneme, determinePopularityProbability()), (phoneme, determinePopularityProbability()), (phoneme, determinePopularityProbability())]
-            nextPhoneme = Phoneme.Phoneme(phoneme, phonemeType, 'example '+phoneme, baseProbability, positionalProbabilities, graphemes)
-            if debugMode: print("nextPhoneme: " + nextPhoneme.phonemeSymbol)
-            phonemeObjects[nextPhoneme.phonemeSymbol] = nextPhoneme
+        if debugMode: self.printPhonemes(True)
         
     # Loads file at filepath, parses for phonemes info and adds Phoneme objects to ongoing dictionary
     def createPhonemesFromFile(self, filePath):
