@@ -5,79 +5,8 @@ import random
 import string
 import math
 import Phoneme
-
-def createPhonemeObjects(phonemeObjects, newPhonemes, phonemeType):
-    debugMode = False
-    # Create Phoneme objects from the incoming list
-    print("Creating (" + str(len(newPhonemes)) + ") phoneme (" + phonemeType + ") objects...")
-    # Loop through phonemes, creating objects
-    for phoneme in newPhonemes:
-        # Create a phoneme object
-        baseProbability = determinePopularityProbability()
-        # Positional probabilities apply modifiers that incline certain phonemes towards certain positional occurrences
-        positionalProbabilities = []
-        usePosProbs = True
-        if usePosProbs:
-            positionalRand = random.random()
-            if positionalRand > 0.7:
-                # Phoneme will be an 'late' one, appearing more frequently at the end of a word
-                print("Phoneme '" + phoneme + "' is late")
-                positionalProbabilities = generateHistogramFrequencies(10, 9, 1, 0.5, False)
-            elif positionalRand < 0.3:
-                # Phoneme will be an 'early' one, appearing more frequently at the beginning of a word
-                positionalProbabilities = generateHistogramFrequencies(10, 0, 1, 0.5, False)
-                print("Phoneme '" + phoneme + "' is early")
-            else:
-                # Phoneme will be given an even likelihood to occur throughout a word
-                positionalProbabilities = []
-
-        graphemes = [(phoneme, determinePopularityProbability()), (phoneme, determinePopularityProbability()), (phoneme, determinePopularityProbability())]
-        nextPhoneme = Phoneme.Phoneme(phoneme, phonemeType, 'example '+phoneme, baseProbability, positionalProbabilities, graphemes)
-        if debugMode: print("nextPhoneme: " + nextPhoneme.phonemeSymbol)
-        phonemeObjects[nextPhoneme.phonemeSymbol] = nextPhoneme
-
-# Generate a list of words
-def generateWords(generatedWords, totalWords, phonemeObjects):
-    debugMode = False
-    print("Generating (" + str(totalWords) + ") words...")
-    for nextWordIndex in range(totalWords):
-        if debugMode: print("Generating word " + str(nextWordIndex))
-        wordLength = int(sampleTruncatedNormalDist(3, 10, 4.5, 2))
-        # Indicate if word length will be calculted in characters or phonemes
-        measureLengthInPhonemes = False
-        # Call generator function
-        finishedWord, symbolString = generateWord(wordLength, measureLengthInPhonemes, phonemeObjects)
-        # Add generated word to list
-        generatedWords.append(finishedWord)
-
-# Generates a single word, with wordlength measured in characters or phonemes
-#  Measuring length in characters gives tighter control over string length, but may prevent the last
-#  phoneme generated from knowing it is the terminating phoneme which may affect positional probabilities)
-def generateWord(desiredWordLength, measureLengthInPhonemes, phonemeObjects):
-    word = ""
-    currentLength = 0
-    symbolString = ""
-    # The empty-string phoneme is used to initiate process
-    latestPhoneme = phonemeObjects[""]
-    while currentLength < desiredWordLength:
-        if latestPhoneme.successors:
-            if debugMode: print("Successors: " + ", ".join(latestPhoneme.successors))
-            chosenPhoneme = latestPhoneme.chooseSuccessor(currentLength+1, desiredWordLength)
-            word += chosenPhoneme.chooseGrapheme()
-            symbolString += chosenPhoneme.phonemeType
-            latestPhoneme = chosenPhoneme
-            # Increase length counter, so word knows when to stop selecting successors
-            if measureLengthInPhonemes:
-                # If length is counter in phonemes, increase length counter by 1, regardless of number of characters in grapheme
-                currentLength += 1
-            else:
-                # If length is counted in characters, set it equal to current length of string
-                currentLength = len(word)
-        else:
-            print("Error: '" + latestPhoneme.phonemeSymbol + "' has no successors (failed on phoneme " + str(nextPhonemeIndex + 1) + " of " + str(wordLength) + ")")
-    if word == "":
-        print("Error: Empty word was generated. (Symbol string: '" + symbolString + "')")
-    return word, symbolString
+import Language
+import utils
 
 def printGeneratedWords(generatedWords):
     print("\nGenerated words:")
@@ -85,7 +14,7 @@ def printGeneratedWords(generatedWords):
         print("\t" + str.capitalize(nextWord))
 
 # Generates and prints words to fill multiple lines of given character length, placing spaces between words and occassional full stops
-def generateAndPrintParagraph(totalLines, lineWidth, phonemeObjects):
+def generateAndPrintParagraph(totalLines, lineWidth, language):
     paragraph = ""
     capitalizeNext = True
     # Indicate if word length will be calculted in characters or phonemes
@@ -97,10 +26,10 @@ def generateAndPrintParagraph(totalLines, lineWidth, phonemeObjects):
     for lineNumber in range(totalLines):
         currentLine = ""
         while len(currentLine) < lineWidth:
-            # Generate another word for this line
-            wordLength = int(sampleTruncatedNormalDist(0, 7, 3, 2)) + 1
+            # Generate sanother word for this line
+            wordLength = int(utils.sampleTruncatedNormalDist(0, 7, 3, 2)) + 1
             # Generate word
-            word, symbolString = generateWord(wordLength, measureWordLengthInPhonemes, phonemeObjects)
+            word, symbolString = language.generateWord(wordLength, measureWordLengthInPhonemes)
             # Words at beginning of sentences will be capitalized, based on flag
             if capitalizeNext:
                 capitalizeNext = False
@@ -128,204 +57,6 @@ def generateAndPrintParagraph(totalLines, lineWidth, phonemeObjects):
     print("\nGenerated paragraph:")
     print(paragraph)
 
-def printPhonemes(phonemeObjects, verbose):
-    print("Total phonemeObjects: " + str(len(phonemeObjects)))
-    # For testing, print out contents of phoneme objects
-    print("Testing phoneme objs:")
-    for phonemeKey in phonemeObjects:
-        phonemeObjects[phonemeKey].reportPhonemeInfo(verbose)
-
-def printSuccessorUsages(phonemeObjects):
-    print("\nPhoneme usage information:\n")
-    for phonemeKey, phoneme in phonemeObjects.items():
-        phoneme.reportPhonemeSuccessorUsage()
-
-# Adds all phonemes as successors to all other phonemes with a probability of 1
-def fullyConnectNetwork(phonemeObjects):
-    debugMode = False
-    print("Fully connecting set of (" + str(len(phonemeObjects)) + ") phoneme objects...")
-    for phonemeKey, phonemeObj in phonemeObjects.items():
-        # Give phonemeObj every other phonemeObject as a successor
-        for successorKey, successorObj in phonemeObjects.items():
-            # Add this object as successor
-            if debugMode: print(phonemeObj.phonemeSymbol + " adding phoneme " + successorObj.phonemeSymbol + " as successor.")
-            successorProbability = getNoiseAlteredBaseProb(successorObj)
-            phonemeObj.addSuccessor(successorObj, successorProbability)
-
-# Randomly determines popularity of item (e.g. a phoneme), allowing approx percentages of high and low probability items to be controlled
-def determinePopularityProbability():
-    probability = 0
-    popularThreshold = 0.6
-    regularThreshold = 0.3
-    rand = random.random()
-    # Determine whether will be popular or regular
-    if rand > popularThreshold:
-        # popular, high probability
-        probability = sampleTruncatedNormalDist(0.5, 1, 0.8, 0.08)
-    elif rand > regularThreshold:
-        # regular, low probability
-        probability = sampleTruncatedNormalDist(0, 0.1, 0.01, 0.05)
-    else:
-        # very unlikely, almost zero-probability (to avoid some phonemes having no successors)
-        probability = 0.00001
-    return probability
-
-# Returns a probability value generated from the given phoneme's baseProbability, modified by noise
-def getNoiseAlteredBaseProb(phoneme):
-    # Normal distribution sample (mean, sd)
-    noise = sampleTruncatedNormalDist(0, 2, 1, 0.25)
-    return phoneme.baseProbability * noise
-
-# Recursive sampling of normal distribution until a sample falls within interval
-def sampleTruncatedNormalDist(minSample, maxSample, mean, standardDev):
-    # Sample normal distribution
-    sample = random.normalvariate(mean, standardDev)
-    if sample < minSample or sample > maxSample:
-        # If sample is outside of interval, recurse
-        sample = sampleTruncatedNormalDist(minSample, maxSample, mean, standardDev)
-    # Returned sample guaranteed to be within interval
-    return sample
-
-# Generates a number of samples and registers which descrete intervals they fall into
-# This function should be used to test interval-mean-sd combinations before use,
-#  with large numbers of iterations, to provide a human readable impression of sample distribution
-#  e.g.  testNormalDist(500, 0, 1, 0.5, 0.1) resulting in:
-#       [0, 0, 16, 64, 169, 176, 65, 9, 1, 0]
-#   reveals the concentation of samples around the mean. Params can then be adjusted accordingly.
-# Normalisation flag can assist in abstracting away iteration-specifics
-def testNormalDist(iterations, minSample, maxSample, mean, standardDev, normaliseResults):
-    debugMode = False
-    sampleIntervalWidth = maxSample - minSample
-    # Interval will be divided into smaller sub-intervals
-    totalDiscreteIntervals = 10
-    discreteIntervalWidth = float(sampleIntervalWidth) / totalDiscreteIntervals
-    # Each sample that falls within a certain interval
-    intervalCounter = [0] * totalDiscreteIntervals
-    for i in range(iterations):
-        sample = sampleTruncatedNormalDist(minSample, maxSample, mean, standardDev)
-        # Starting from lowest, determine which interval
-        for counterIndex in range(totalDiscreteIntervals):
-            if sample <= (minSample + (discreteIntervalWidth * (counterIndex+1))):
-                # Sample fell in this interval; increment counter
-                if debugMode: print("Sample: " + str(sample) + ", counterIndex: " + str(counterIndex) + " of " + str(totalDiscreteIntervals) + ",  sample upper bound: " + str(minSample + (discreteIntervalWidth * (counterIndex+1))))
-                intervalCounter[counterIndex] += 1
-                break
-    if normaliseResults:
-        for i in range(len(intervalCounter)):
-            intervalCounter[i] = round(float(intervalCounter[i]) / iterations, 3)
-    print("\nDistribution (mu=" + str(mean) + ", sd=" + str(standardDev) + ", interval=[" + str(minSample) + "," + str(maxSample) + "]):")
-    print(intervalCounter)
-
-# Given a dict of phonemes, each phoneme's successor probabilities are modifed based on the successor's phonemeType
-def attenuateSuccessorsOnType(phonemeObjects):
-    for key, phoneme in phonemeObjects.items():
-        # Each successor must have its probability review
-        for successorKey, successor in phoneme.successors.items():
-            # Modifier is initially neutral
-            modifier = 1
-            # Compare phoneme types
-            if phoneme.phonemeType == successor.phonemeType:
-                # Phonemes are same type; probability should be drastically reduced
-                modifier = sampleTruncatedNormalDist(0, 1, 0.05, 0.1)
-            phoneme.successorProbabilities[successorKey] *= modifier
-
-# Removes from each node's listed successors
-def removeSameTypeConnections(phonemeObjects):
-    print("Removing same-typed successions...")
-    debugMode = False
-    for key in phonemeObjects.keys():
-        phonemeObj = phonemeObjects[key]
-        if debugMode: print("'" + phonemeObj.phonemeSymbol + "(" + phonemeObj.phonemeType + ") being checked for like-typed successors.")
-        # retain only differently typed objects
-        keysForRemoval = []
-        # accumulate probabilities of retained objects
-        cumulativeProb = 0
-        for key in phonemeObj.successors.keys():
-            if phonemeObj.successors[key].phonemeType == phonemeObj.phonemeType:
-                # remove phoneme item from dict
-                keysForRemoval.append(key)
-            else:
-                # add retained keys probability to cumulative
-                cumulativeProb += phonemeObj.successorProbabilities[key]
-        if debugMode: print("...deleting keys: " + ",".join(keysForDeletion))
-        # Prompt node to eject keys from successor dicts
-        phonemeObj.removeSuccessors(keysForRemoval)
-        if debugMode: print("...keys after deletion: " + ",".join(phonemeObj.successors.keys()))
-
-# Remove zero-probability successors
-def pruneNetwork(phonemeObjects):
-    debugMode = False
-    print("Pruning network of zero-probability successions...")
-    for phonemeKey in phonemeObjects:
-        keysForRemoval = []
-        for successorKey in phonemeObjects[phonemeKey].successors:
-            # Check probability of successor
-            if phonemeObjects[phonemeKey].successorProbabilities[successorKey] == 0:
-                # Add to removal list
-                keysForRemoval.append(successorKey)
-        if debugMode: print("Phoneme '" + phonemeKey + "' is losing " + str(len(keysForRemoval)) + " of " + str(len(phonemeObjects[phonemeKey].successors.keys())) + " successors.")
-        phonemeObjects[phonemeKey].removeSuccessors(keysForRemoval)
-
-# Initiator phoneme is the starting state for word generation, with all possible first-phonemes as its successors
-def addEmptyInitiator(successorObjects):
-    print("Adding empty initiator phoneme...")
-    # Create empty-phoneme object
-    emptySymbol = ""
-    emptyType = "initiator"
-    emptyExample = "not applicable"
-    baseProbability = 0
-    positionalProbability = 1
-    emptyGraphemes = [("", determinePopularityProbability())]
-    emptyInitiator = Phoneme.Phoneme(emptySymbol, emptyType, emptyExample, baseProbability, positionalProbability, emptyGraphemes)
-    # Provide all phonemes as successors of the initiator with equal probability
-    baseProbability = 1.0
-    # Probability that for each successor stored in dict, keyed on successor phonemeSymbol
-    successorProbabilities = dict()
-    for successorKey in successorObjects:
-        successorProbabilities[successorKey] = getNoiseAlteredBaseProb(successorObjects[successorKey])
-    # Place empty initiator as single phoneme in list,
-    # Corresponding list with recently created dict of successor probabilities also placed in list
-    addSequenceOfSuccessors([emptyInitiator], [successorProbabilities], successorObjects)
-    # Add the empty initiator to dictionary
-    phonemeObjects[""] = emptyInitiator
-
-# Given list of phoneme takes all in given dict as successors
-# For use in cases such as the emptyInitiator, which should have all phoneme objects as successors
-# - predecessorPhonemeObjects: list of phoneme objects
-# - successorProbabilities: list (corresponding with predecessor list) of dicts, containing probabilities keyed on successor phonemeSymbols
-# - successorPhonemeObjects: dict of phonemes using symbol as key
-def addSequenceOfSuccessors(predecessorPhonemeObjects, successorProbabilities, successorPhonemeObjects):
-    for predecessorIndex in range(len(predecessorPhonemeObjects)):
-        phoneme = predecessorPhonemeObjects[predecessorIndex]
-        # Collect dict of successor probabilities
-        nextSuccessorProbabilities = successorProbabilities[predecessorIndex]
-        # Iterate through successors, attaching each to the current phoneme
-        for successorKey, successorPhoneme in successorPhonemeObjects.items():
-            if successorKey in nextSuccessorProbabilities.keys():
-                probability = nextSuccessorProbabilities[successorKey]
-                predecessorPhonemeObjects[predecessorIndex].addSuccessor(successorPhoneme, probability)
-            else:
-                print("Error: Phoneme '" + phoneme.phonemeSymbol + "' successor '" + successorKey + "' not added; no probability provided.")
-
-def normaliseSuccessorProbabilities(phonemeObjects):
-    debugMode = False
-    # Perform function for each node...
-    for phonemeKey in phonemeObjects:
-        # Calculate sum of phoneme's successorProbabilities
-        summedProbabilities = 0
-        for successorProbability in phonemeObjects[phonemeKey].successorProbabilities.values():
-            summedProbabilities += successorProbability
-        if debugMode: print("Unnormalised probability for '" + phonemeObjects[phonemeKey].phonemeSymbol + "': " + str(summedProbabilities))
-        # Divide each probability by this total
-        if summedProbabilities != 0:
-            for successorKey in phonemeObjects[phonemeKey].successorProbabilities:
-                phonemeObjects[phonemeKey].successorProbabilities[successorKey] /= summedProbabilities
-        if debugMode:
-            summedProbabilities = 0
-            for successorProbability in phonemeObjects[phonemeKey].successorProbabilities.values():
-                summedProbabilities += successorProbability
-            print("Normalised probability for '" + phonemeObjects[phonemeKey].phonemeSymbol + "': " + str(summedProbabilities))
-
 def testSuccessorNormalisation(phoneme):
     debugMode = False
     cumulativeProb = 0
@@ -335,206 +66,20 @@ def testSuccessorNormalisation(phoneme):
         keyCounter += 1
     if debugMode: print("Phoneme '" + phoneme.phonemeSymbol + "' cumulativeProb: " + str(cumulativeProb) + " (from " + str(keyCounter) + " successors)")
 
-# Generates a list of given intervals, describing a symmetric distribution of values
-def generateHistogramFrequencies(totalIntervals, meanInterval, meanIntervalProb, falloff, isNormalised):
-    distribution = []
-    if totalIntervals > 0 and (falloff > 0 and falloff < 1):
-        # Fill list with correct number of zero-initialised intervals
-        distribution = [0] * totalIntervals
-        if meanIntervalProb <= 1:
-            distribution[meanInterval] = meanIntervalProb
-            latestValue = meanIntervalProb
-            cumulativeProb = meanIntervalProb
-            complete = False
-            offsetFromMeanInterval = 1
-            while not complete:
-                # Apply falloff to latest values
-                nextProb = latestValue * falloff
-                # If normalisation specified then cumulative prob stops at one and process ends
-                if isNormalised:
-                    if (nextProb * 2) + cumulativeProb > 1:
-                        # Next step will deplete probability
-                        nextProb = (1 - cumulativeProb)/2
-                        complete = True
-                # Keep running total of probability values inserted so far
-                cumulativeProb += 2 * nextProb
-                latestValue = nextProb
-                # Place nextProbs in intervals
-                insertedValues = False
-                if meanInterval - offsetFromMeanInterval >= 0:
-                    distribution[meanInterval - offsetFromMeanInterval] = nextProb
-                    insertedValues = True
-                if meanInterval + offsetFromMeanInterval < totalIntervals:
-                    distribution[meanInterval + offsetFromMeanInterval] = nextProb
-                    insertedValues = True
-                if not insertedValues:
-                    # If offset was outside interval range on both ends of list then flag will be false
-                    complete = True
-                offsetFromMeanInterval += 1
-        else:
-            print("Error: Mean interval probability was specified to be greater than 1. Capping at 1.")
-            distribution[meanInterval] = 1
-    return distribution
-
-# Uses parameters to generate a distribution list, and prints out the rounded values
-def testHistogramFrequencyGeneration(totalIntervals, meanInterval, meanIntervalProb, falloff, isNormalised, decimalPlaces):
-    distribution = generateHistogramFrequencies(totalIntervals, meanInterval, meanIntervalProb, falloff, isNormalised)
-    cumulativeProbability = sum(distribution)
-    for i in range(len(distribution)):
-        # Convert values to strings to retain their rounded representation
-        distribution[i] = str(round(distribution[i], decimalPlaces))
-    print("Test distribution (cumProb=" + str(round(cumulativeProbability, decimalPlaces)) + "):")
-    print(distribution)
-
-# Prompts each phoneme to print its contents, formatted in pre-defined way that can be pasted into a file and later read back out
-def printPhonemesInStoreFormat(phonemeObjects):
-    for phonemeKey, phonemeObj in phonemeObjects.items():
-        phonemeObj.printPhonemeInStoreFormat()
-
-# Loads file at filepath, parses for phonemes info and adds Phoneme objects to ongoing dictionary
-def createPhonemesFromFile(phonemeObjects, filePath):
-    print("Loading phonemes from file (" + filePath + "):")
-    file = open(filePath, "r")
-    # Flag indicates whether info for a phoneme is currently being parsed
-    processingPhoneme = False
-    # During parsing phoneme info must be held
-    currentSymbol, currentType, currentExample, currentGraphemes = "", "", "", ""
-    #Iterate through lines of file
-    for line in file.readlines():
-        # Remove and trailing whitespace
-        line = string.strip(line)
-        if processingPhoneme:
-            # Check if phoneme ends on this line
-            if line == "<END PHONEME>":
-                # Create and add Phoneme object if enough information was collected
-                if not (currentSymbol == "" or currentType == "" or currentExample == "" or currentGraphemes == ""):
-                    # Phoneme information is complete; creation can proceed
-                    graphemeParts = string.split(currentGraphemes, ',')
-                    graphemes = []
-                    for grapheme in graphemeParts:
-                        # Convert each comma separated grapheme into a tuple with a probability
-                        graphemes.append((grapheme, 1))
-                    # Create grapheme object
-                    newPhoneme = Phoneme.Phoneme(currentSymbol, currentType, currentExample, 1, [], graphemes)
-                    # Add grapheme object to dict
-                    phonemeObjects[newPhoneme.phonemeSymbol] = newPhoneme
-                # Even if no phoneme is created, end tag ends processing of this phoneme
-                processingPhoneme = False
-            elif line == "<START PHONEME>":
-                # This should not have been encountered as no end tag as yet been encountered
-                print("Error: Encountered second <START PHONEME> tag before end tag was found.")
-                # Re-initialise collected info, ready for new collection
-                currentSymbol, currentType, currentExample, currentGraphemes = "", "", "", ""
-            else:
-                # Attempt to collect phoneme information from this line, splitting on its first colon (enforced by maxSplits)
-                parts = string.split(line, ':' , 1)
-                if parts[0] == "phonemeSymbol":
-                    currentSymbol = parts[1]
-                elif parts[0] == "phonemeType":
-                    currentType = parts[1]
-                elif parts[0] == "phonemeExample":
-                    currentExample = parts[1]
-                elif parts[0] == "graphemes":
-                    currentGraphemes = parts[1]
-        else:
-            # Check if a phoneme begins on this line
-            if line == "<START PHONEME>":
-                processingPhoneme = True
-            elif line == "<END PHONEME>":
-                # This should not have been encountered as no start tag as yet been encountered
-                print("Error: Encountered <END PHONEME> tag before start tag was found.")
-
-# Assigns each phoneme a new baseProbability, 
-def grantPhonemesRandomBaseProbabilities(phonemeObjects):
-    for phonemeKey in phonemeObjects:
-        phonemeObjects[phonemeKey].baseProbability = determinePopularityProbability()
-
-# Assigns each phoneme a random list of positional probabilities
-def grantPhonemesRandomPositionalProbabilities(phonemeObjects):
-    for phonemeKey in phonemeObjects:
-        # Positional probabilities apply modifiers that incline certain phonemes towards certain positional occurrences
-        positionalProbabilities = []
-        positionalRand = random.random()
-        if positionalRand > 0.7:
-            # Phoneme will be an 'late' one, appearing more frequently at the end of a word
-            print("Phoneme '" + phonemeObjects[phonemeKey].phonemeSymbol + "' is late")
-            positionalProbabilities = generateHistogramFrequencies(10, 9, 1, 0.5, False)
-        elif positionalRand < 0.3:
-            # Phoneme will be an 'early' one, appearing more frequently at the beginning of a word
-            positionalProbabilities = generateHistogramFrequencies(10, 0, 1, 0.5, False)
-            print("Phoneme '" + phonemeObjects[phonemeKey].phonemeSymbol + "' is early")
-        else:
-            # Phoneme will be given an even likelihood to occur throughout a word
-            positionalProbabilities = []
-        # Assign the positional probabilities to the phoneme object            
-        phonemeObjects[phonemeKey].positionalProbabilities = positionalProbabilities
-
 ## START OF PROGRAM ROUTINE ##
 print("Markov Phonemes!\n")
 
-# Phoneme Lists
-vowelPhonemes = ['a', 'e', 'i', 'o', 'u', 'ae', 'ee', 'ie', 'oe', 'ue', 'oo', 'ar', 'ur', 'or', 'au', 'er', 'ow', 'oi', 'air', 'ear']
-# Note: This contains graphemes which are not distinct phonemes, such as "c" which shares the phoneme "k"
-consonantPhonemes = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z', 'wh', 'th', 'ch', 'sh', 'zh', 'ng']
+newLang = Language.Language()
 
-debugMode = False
-
-# Test variables
-#vowelPhonemes = ['a', 'e', 'i']
-#consonantPhonemes = ['b', 'd', 'k']
-
-# All phoneme objects must be held together in a list
-phonemeObjects = dict()
-
-# Create vowel phoneme objects
-#createPhonemeObjects(phonemeObjects, vowelPhonemes, "v")
-
-# Create consonant phoneme objects
-#createPhonemeObjects(phonemeObjects, consonantPhonemes, "c")
-
-# Create phoneme objects specified in file
-createPhonemesFromFile(phonemeObjects, "phonemeStoreBasic.txt")
-
-# Assign random base probabilities
-grantPhonemesRandomBaseProbabilities(phonemeObjects)
-
-# Assigns random positional probabilities
-grantPhonemesRandomPositionalProbabilities(phonemeObjects)
-
-# Test the contents of the phoneme objects
-if debugMode: printPhonemes(phonemeObjects, False)
-
-# Create fully connected network
-fullyConnectNetwork(phonemeObjects)
-
-# Test the contents of the phoneme objects
-if debugMode: printPhonemes(phonemeObjects, True)
-
-# Remove connections between like-typed nodes
-#removeSameTypeConnections(phonemeObjects)
-
-# Reduce probability for connections between like-typed nodes
-attenuateSuccessorsOnType(phonemeObjects)
-
-# Add empty-string phoneme as initiation point
-addEmptyInitiator(phonemeObjects)
-
-# Remove successor connections from network if they are zero-probability
-pruneNetwork(phonemeObjects)
-
-# Normalise successor probabilities for all nodes
-normaliseSuccessorProbabilities(phonemeObjects)
-
-# Print information on each phoneme in the network, including
-#printPhonemes(phonemeObjects, True)
+newLang.setupLanguage(debugMode = False)
 
 # Generate words from network
 totalWords = 20
 generatedWords = []
-generateWords(generatedWords, totalWords, phonemeObjects)
+newLang.generateWords(generatedWords, totalWords)
 
 # Print successor-usage information for each phoneme
-#printSuccessorUsages(phonemeObjects)
+#newLang.printSuccessorUsages()
 
 # Print generated list
 printGeneratedWords(generatedWords)
@@ -542,23 +87,23 @@ printGeneratedWords(generatedWords)
 # Generate a paragraph of given line length and character width
 paragraphTotalLines = 5
 paragraphWidth = 65
-generateAndPrintParagraph(paragraphTotalLines, paragraphWidth, phonemeObjects)
+generateAndPrintParagraph(paragraphTotalLines, paragraphWidth, newLang)
 
 # Test a distribution (iterations, min, max, mean, sd, normalisation)
 # Note: These are some tests previously performed and left here in case revisiting them is useful (saving on some typing)
-#testNormalDist(5000, 0, 1, 0.5, 0.1, True)
-#testNormalDist(5000, 0.5, 1, 0.8, 0.08, True)
-#testNormalDist(5000, 0, 0.1, 0.01, 0.05, True)
-#testNormalDist(5000, 0.5, 1.5, 1, 0.1, True)
-#testNormalDist(5000, 0, 7, 2, 2, True)
-#testNormalDist(5000, 3, 10, 4.5, 2, True)
-#testNormalDist(5000, 0, 2, 1, 0.25, True)
+#utils.testNormalDist(5000, 0, 1, 0.5, 0.1, True)
+#utils.testNormalDist(5000, 0.5, 1, 0.8, 0.08, True)
+#utils.testNormalDist(5000, 0, 0.1, 0.01, 0.05, True)
+#utils.testNormalDist(5000, 0.5, 1.5, 1, 0.1, True)
+#utils.testNormalDist(5000, 0, 7, 2, 2, True)
+#utils.testNormalDist(5000, 3, 10, 4.5, 2, True)
+#utils.testNormalDist(5000, 0, 2, 1, 0.25, True)
 # Testing attenuateSuccessorsOnType() like-typed attentuation
-#testNormalDist(5000, 0, 1, 0.05, 0.1, True)
+#utils.testNormalDist(5000, 0, 1, 0.05, 0.1, True)
 
 # Testing generation of discrete distributions lists
 # Params: totalIntervals, meanInterval, meanIntervalProb, falloff, isNormalised
 # Test for 'early phoneme' positional probabilities
-#testHistogramFrequencyGeneration(10, 0, 1, 0.5, False, 3)
+#utils.testHistogramFrequencyGeneration(10, 0, 1, 0.5, False, 3)
 
-#printPhonemesInStoreFormat(phonemeObjects)
+#newLang.printPhonemesInStoreFormat()

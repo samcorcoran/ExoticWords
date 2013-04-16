@@ -1,5 +1,6 @@
 import random
 import math
+import utils
 
 # A phoneme exists as a unit
 class Phoneme:
@@ -219,3 +220,8 @@ class Phoneme:
         
         print(closeTag)
         
+    # Returns a probability value generated from the given phoneme's baseProbability, modified by noise
+    def getNoiseAlteredBaseProb(self):
+        # Normal distribution sample (mean, sd)
+        noise = utils.sampleTruncatedNormalDist(0, 2, 1, 0.25)
+        return self.baseProbability * noise     
