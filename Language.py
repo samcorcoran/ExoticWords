@@ -259,6 +259,15 @@ class Language:
                     summedProbabilities += successorProbability
                 print("Normalised probability for '" + self.phonemeObjects[phonemeKey].phonemeSymbol + "': " + str(summedProbabilities))
 
+    def testSuccessorNormalisation(phoneme):
+        debugMode = False
+        cumulativeProb = 0
+        keyCounter = 0
+        for key in phoneme.successorProbabilities:
+            cumulativeProb += phoneme.successorProbabilities[key]
+            keyCounter += 1
+        if debugMode: print("Phoneme '" + phoneme.phonemeSymbol + "' cumulativeProb: " + str(cumulativeProb) + " (from " + str(keyCounter) + " successors)")
+
     # Generate a list of words
     def generateWords(self, generatedWords, totalWords):
         debugMode = False
