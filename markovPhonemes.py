@@ -69,14 +69,13 @@ def testSuccessorNormalisation(phoneme):
 ## START OF PROGRAM ROUTINE ##
 print("Markov Phonemes!\n")
 
-newLang = Language.Language()
-
-newLang.setupLanguage(debugMode = False)
+firstLang = Language.Language()
+#secondLang = Language.Language()
 
 # Generate words from network
 totalWords = 20
 generatedWords = []
-newLang.generateWords(generatedWords, totalWords)
+firstLang.generateWords(generatedWords, totalWords)
 
 # Print successor-usage information for each phoneme
 #newLang.printSuccessorUsages()
@@ -84,10 +83,16 @@ newLang.generateWords(generatedWords, totalWords)
 # Print generated list
 printGeneratedWords(generatedWords)
 
+#generatedWords = []
+#secondLang.generateWords(generatedWords, totalWords)
+#printGeneratedWords(generatedWords)
+
 # Generate a paragraph of given line length and character width
 paragraphTotalLines = 5
 paragraphWidth = 65
-generateAndPrintParagraph(paragraphTotalLines, paragraphWidth, newLang)
+generateAndPrintParagraph(paragraphTotalLines, paragraphWidth, firstLang)
+#generateAndPrintParagraph(paragraphTotalLines, paragraphWidth, secondLang)
+
 
 # Test a distribution (iterations, min, max, mean, sd, normalisation)
 # Note: These are some tests previously performed and left here in case revisiting them is useful (saving on some typing)
